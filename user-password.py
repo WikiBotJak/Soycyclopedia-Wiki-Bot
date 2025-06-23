@@ -1,1 +1,3 @@
-('SoyjakBot', '6ckWv3mkZeUn2Px')
+import os
+
+('SoyjakBot', os.environ['WIKI_PASS'])
