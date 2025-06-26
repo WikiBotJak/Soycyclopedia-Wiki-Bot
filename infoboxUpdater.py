@@ -22,12 +22,11 @@ class InfoboxUpdater:
         }
         res = requests.get(url, headers=headers)
         res.raise_for_status()
-        res.raise_for_status()
         data = res.json()
         return data.get(f"{tag}", 0)
 
     @staticmethod
-    def update_page_variants(self, page: pywikibot.Page) -> bool:
+    def update_page_variants(self, page: pywikibot.Page):
         """Update booru_posts counts in a page, if outdated."""
         print(f"→ Checking [[{page.title()}]]...")
         original_text = page.text
