@@ -1,3 +1,3 @@
 import os
 
-('SoyjakBot', os.environ['WIKI_PASS'])
+('SoycyclopediaBot', os.environ['WIKI_PASS'])

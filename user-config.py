@@ -1,6 +1,10 @@
+import os
+from pywikibot.config import put_throttle
+
 family = 'soyjak'
 mylang = 'en'
-usernames['soyjak']['en'] = 'SoyjakBot'
+usernames['soyjak']['en'] = 'SoycyclopediaBot'
 password_file = "user-password.py"
-# authenticate['wiki.soyjak.st'] = ('SoyjakBot','6ckWv3mkZeUn2Px')
-user_agent_format = 'SoycyclopediaWikiBot/1.0 (wiki.soyjak.st/User:SoyjakBot)'
+user_agent_format = os.environ['UA_AGENT']
+
+put_throttle = 10
