@@ -60,7 +60,7 @@ class InfoboxUpdater:
 
         if changed:
             page.text = str(wikicode)
-            page.save(summary="Updated boorusearch post counts (test)")
+            page.save(summary="Updated boorusearch post counts")
 
     @staticmethod
     def get_day_suffix(day: int) -> str:
