@@ -85,4 +85,4 @@ class InfoboxUpdater:
                 self.update_page_variants(self, page)
             except Exception as e:
                 print(f"[!] Error on {page.title()}: {e}")
-
+        print("[✓] All pages checked.")
