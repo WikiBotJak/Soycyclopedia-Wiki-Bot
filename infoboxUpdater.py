@@ -48,7 +48,8 @@ class InfoboxUpdater:
                 for subtemplate in subcode.filter_templates(recursive=True):
                     if subtemplate.has(1) and subtemplate.has("display"):
                         variant = subtemplate.get(1).value.strip()
-                        current_display = int(str(subtemplate.get("display").value).strip())
+                        display_value = str(subtemplate.get("display").value).strip()
+                        current_display = int(display_value.rstrip("+"))  # Strip '+' if present
                         actual_count = self.get_variant_count(variant)
 
                         if current_display != actual_count:
