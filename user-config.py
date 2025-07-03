@@ -7,4 +7,4 @@ usernames['soyjak']['en'] = 'SoycyclopediaBot'
 password_file = "user-password.py"
 user_agent_format = os.environ['UA_AGENT']
 
-put_throttle = 10
+put_throttle = 15

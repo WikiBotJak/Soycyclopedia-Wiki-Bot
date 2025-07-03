@@ -22,12 +22,11 @@ class InfoboxUpdater:
         }
         res = requests.get(url, headers=headers)
         res.raise_for_status()
-        res.raise_for_status()
         data = res.json()
         return data.get(f"{tag}", 0)
 
     @staticmethod
-    def update_page_variants(self, page: pywikibot.Page) -> bool:
+    def update_page_variants(self, page: pywikibot.Page):
         """Update booru_posts counts in a page, if outdated."""
         print(f"→ Checking [[{page.title()}]]...")
         original_text = page.text
@@ -49,7 +48,8 @@ class InfoboxUpdater:
                 for subtemplate in subcode.filter_templates(recursive=True):
                     if subtemplate.has(1) and subtemplate.has("display"):
                         variant = subtemplate.get(1).value.strip()
-                        current_display = int(str(subtemplate.get("display").value).strip())
+                        display_value = str(subtemplate.get("display").value).strip()
+                        current_display = int(display_value.rstrip("+"))  # Strip '+' if present
                         actual_count = self.get_variant_count(variant)
 
                         if current_display != actual_count:
@@ -61,7 +61,7 @@ class InfoboxUpdater:
 
         if changed:
             page.text = str(wikicode)
-            page.save(summary="Updated boorusearch post counts (test)")
+            page.save(summary="Updated boorusearch post counts")
 
     @staticmethod
     def get_day_suffix(day: int) -> str:
@@ -86,4 +86,4 @@ class InfoboxUpdater:
                 self.update_page_variants(self, page)
             except Exception as e:
                 print(f"[!] Error on {page.title()}: {e}")
-
+        print("[✓] All pages checked.")
