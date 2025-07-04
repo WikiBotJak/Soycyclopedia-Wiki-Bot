@@ -12,10 +12,9 @@ class MainPageArticleUpdater:
         new_pages = []
         page = pywikibot.Page(self.site, self.page_title)
 
-
         for change in self.site.recentchanges(namespaces=0, changetype='new', total=20):
             title = change['title']
-            if title.startswith(self.excluded_prefix):
+            if title.startswith(self.excluded_prefix) or 'redirect' in change:
                 continue
             new_pages.append(f"[[{title}]]")
             if len(new_pages) == self.max_new_pages:
