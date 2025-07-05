@@ -14,8 +14,16 @@ class MainPageArticleUpdater:
 
         for change in self.site.recentchanges(namespaces=0, changetype='new', total=20):
             title = change['title']
+            
             if title.startswith(self.excluded_prefix) or 'redirect' in change:
                 continue
+
+            # Ensure the page still exists (not moved/deleted)
+            page_obj = pywikibot.Page(self.site, title)
+            if not page_obj.exists():
+                print(f"[!] Skipping missing/deleted: {title}")
+                continue
+            
             new_pages.append(f"[[{title}]]")
             if len(new_pages) == self.max_new_pages:
                 break
