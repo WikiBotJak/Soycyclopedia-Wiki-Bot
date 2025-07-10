@@ -1,45 +1,42 @@
 import pywikibot
-from datetime import datetime
 
-class MainPageArticleUpdater:
-    def __init__(self, site):
-        self.site = site
-        self.excluded_prefix = "Featured Gem:Main Page/Featured Gem"
-        self.page_title = "Main Page/NA"
-        self.max_new_pages = 5
+excluded_prefix = "Featured Gem:Main Page/Featured Gem"
+page_title = "Main Page/NA"
+max_new_pages = 5
 
-    def run(self):
-        new_pages = []
-        page = pywikibot.Page(self.site, self.page_title)
 
-        for change in self.site.recentchanges(namespaces=0, changetype='new', total=20):
-            title = change['title']
-            
-            if title.startswith(self.excluded_prefix) or 'redirect' in change:
-                continue
+def update_newest_articles(site):
+    new_pages = []
+    page = pywikibot.Page(site, page_title)
 
-            # Ensure the page still exists (not moved/deleted)
-            page_obj = pywikibot.Page(self.site, title)
-            if not page_obj.exists():
-                print(f"[!] Skipping missing/deleted: {title}")
-                continue
-            
-            new_pages.append(f"[[{title}]]")
-            if len(new_pages) == self.max_new_pages:
-                break
+    for change in site.recentchanges(namespaces=0, changetype='new', total=20):
+        title = change['title']
 
-        # Build post content
-        joined_links = " • ".join(new_pages)
+        if title.startswith(excluded_prefix) or 'redirect' in change:
+            continue
 
-        post = f"""<div style="text-align: center;">
-            <div style="display: inline-block; text-align: left;">
-        {{{{Post|'''{joined_links}'''
-        
-        |Soot|Sun 20 Sep 2020 16:41:15|soy|1|700}}}}
-            </div>
-        </div>"""
+        # Ensure the page still exists (not moved/deleted)
+        page_obj = pywikibot.Page(site, title)
+        if not page_obj.exists():
+            print(f"[!] Skipping missing/deleted: {title}")
+            continue
 
-        # Update the wiki page
-        print(f"Updating newest mainspace articles ({joined_links})")
-        page.text = post
-        page.save(summary="Update newest mainspace articles")
+        new_pages.append(f"[[{title}]]")
+        if len(new_pages) == max_new_pages:
+            break
+
+    # Build post content
+    joined_links = " • ".join(new_pages)
+
+    post = f"""<div style="text-align: center;">
+        <div style="display: inline-block; text-align: left;">
+    {{{{Post|'''{joined_links}'''
+
+    |Soot|Sun 20 Sep 2020 16:41:15|soy|1|700}}}}
+        </div>
+    </div>"""
+
+    # Update the wiki page
+    print(f"Updating newest mainspace articles ({joined_links})")
+    page.text = post
+    page.save(summary="Update newest mainspace articles")
