@@ -31,7 +31,7 @@ def main():
     scheduler = BlockingScheduler() #BlockingScheduler keeps the script running
 
     scheduler.add_job(
-        update_na,
+        update_blocks,
         trigger=CronTrigger(hour='*/2'),
         name="Block Flag Sync",
         misfire_grace_time=3600  # if missed, run within an hour
