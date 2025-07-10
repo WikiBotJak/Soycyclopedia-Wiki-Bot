@@ -32,7 +32,7 @@ def main():
 
     scheduler.add_job(
         update_na,
-        trigger=CronTrigger(hour=2),
+        trigger=CronTrigger(hour='*/2'),
         name="Block Flag Sync",
         misfire_grace_time=3600  # if missed, run within an hour
     )
