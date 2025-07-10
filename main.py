@@ -2,7 +2,8 @@ import pywikibot
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
 from scripts.infoboxUpdater import InfoboxUpdater
-from scripts.updateNewesetArticles import MainPageArticleUpdater
+from scripts.updateNewesetArticles import update_newest_articles
+from scripts.block_flag_updater import update_block_flags
 
 def login_bot():
     site = pywikibot.Site()
@@ -18,12 +19,23 @@ def update_infoboxes():
 
 def update_na():
     site = login_bot()
-    updater = MainPageArticleUpdater(site)
+    updater = update_newest_articles(site)
     updater.run()
+
+def update_blocks():
+    site = login_bot()
+    update_block_flags(site)
 
 
 def main():
     scheduler = BlockingScheduler() #BlockingScheduler keeps the script running
+
+    scheduler.add_job(
+        update_na,
+        trigger=CronTrigger(hour=2),
+        name="Block Flag Sync",
+        misfire_grace_time=3600  # if missed, run within an hour
+    )
 
     # Run daily
     scheduler.add_job(
