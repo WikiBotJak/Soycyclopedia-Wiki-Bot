@@ -23,7 +23,11 @@ class InfoboxUpdater:
         res = requests.get(url, headers=headers)
         res.raise_for_status()
         data = res.json()
-        return data.get(f"{tag}", 0)
+
+        if isinstance(data, dict) and data:
+            first_key = next(iter(data))
+            return int(data[first_key])
+        return 0
 
     @staticmethod
     def update_page_variants(self, page: pywikibot.Page):
