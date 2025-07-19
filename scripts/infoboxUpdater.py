@@ -56,7 +56,7 @@ class InfoboxUpdater:
                         current_display = int(display_value.rstrip("+"))  # Strip '+' if present
                         actual_count = self.get_variant_count(variant)
 
-                        if current_display != actual_count:
+                        if current_display != actual_count and actual_count > 0:
                             print(f"[+] Updating '{variant}': {current_display} → {actual_count}")
                             subtemplate.add("display", str(actual_count))
                             updated_raw_value = self.update_as_of_date(str(subcode), today_str)
