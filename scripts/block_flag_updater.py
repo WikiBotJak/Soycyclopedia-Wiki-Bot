@@ -2,14 +2,19 @@ import pywikibot
 import re
 
 TEMPLATE_NAMES = ["{{Permablocked}}", "{{Permabanned}}"]
-SUMMARY_ADD = "Add {{Permablocked}} to permanently blocked user"
-SUMMARY_REMOVE = "Remove {{Permablocked}} from unblocked user"
+SUMMARY_ADD = "Add {{Permablocked}} to permanently blocked user (test)"
+SUMMARY_REMOVE = "Remove {{Permablocked}} from unblocked user (test)"
 
 def update_block_flags(site):
     print("[*] Checking recent block log events...")
 
     for event in site.logevents('block', total=5):
         username = event.page().title(with_ns=False)
+
+        #Skip temporary anon usernames
+        if username.startswith('~'):
+            print(f"[!] Skipping temp anon user: {username}")
+            continue
 
         # Only handle User: pages
         user_page = pywikibot.Page(site, f"User:{username}")
