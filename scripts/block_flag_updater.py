@@ -44,8 +44,14 @@ def update_block_flags(site):
             user_page.save(summary=SUMMARY_ADD)
 
         elif not is_perm_block and has_template:
-            # Remove the template
-            print(f"[-] Removing Pemablocked/Permabanned from {username}")
-            new_text = re.sub(r"(?im)^\s*\{\{\s*(pemablocked|permabanned)\s*\}\}\s*\n?", "", text, count=1)
-            user_page.text = new_text
-            user_page.save(summary=SUMMARY_REMOVE)
+            print(f"[-] Removing Permablocked/Permabanned from {username}")
+            code = mwparserfromhell.parse(text)
+            for tpl in code.filter_templates():
+                name = tpl.name.strip().lower()
+                if name in ("permablocked", "permabanned"):
+                    code.remove(tpl)
+
+            new_text = str(code).lstrip('\n')
+            if new_text != text:
+                user_page.text = new_text
+                user_page.save(summary=SUMMARY_REMOVE)
