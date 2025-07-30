@@ -9,7 +9,7 @@ def update_newest_articles(site):
     new_pages = []
     page = pywikibot.Page(site, page_title)
 
-    for change in site.recentchanges(namespaces=0, changetype='new', total=15):
+    for change in site.recentchanges(namespaces=0, changetype='new', total=20):
         title = change['title']
 
         if title.startswith(excluded_prefix) or 'redirect' in change:
