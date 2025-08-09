@@ -1,9 +1,17 @@
 import pywikibot
 import re
+import ipaddress
 
 TEMPLATE_NAMES = ["{{Permablocked}}", "{{Permabanned}}"]
 SUMMARY_ADD = "Add {{Permablocked}} to permanently blocked user"
 SUMMARY_REMOVE = "Remove {{Permablocked}} from unblocked user"
+
+def is_ip_address(value):
+    try:
+        ipaddress.ip_address(value)
+        return True
+    except ValueError:
+        return False
 
 def update_block_flags(site):
     print("[*] Checking recent block log events...")
@@ -14,6 +22,11 @@ def update_block_flags(site):
         #Skip temporary anon usernames
         if username.startswith('~'):
             print(f"[!] Skipping temp anon user: {username}")
+            continue
+
+        # Skip IP addresses
+        if is_ip_address(username):
+            print(f"[!] Skipping IP address: {username}")
             continue
 
         # Only handle User: pages
