@@ -1,6 +1,7 @@
 import pywikibot
 import re
 import ipaddress
+import mwparserfromhell
 
 TEMPLATE_NAMES = ["{{Permablocked}}", "{{Permabanned}}"]
 SUMMARY_ADD = "Add {{Permablocked}} to permanently blocked user"
