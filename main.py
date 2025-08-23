@@ -4,6 +4,7 @@ from apscheduler.triggers.cron import CronTrigger
 from scripts.infoboxUpdater import InfoboxUpdater
 from scripts.updateNewesetArticles import update_newest_articles
 from scripts.block_flag_updater import update_block_flags
+from scripts.archiveis_archiver import MementoArchiver
 
 def login_bot():
     site = pywikibot.Site()
@@ -22,18 +23,21 @@ def update_na():
     updater = update_newest_articles(site)
     updater.run()
 
-def update_blocks():
+def update_blocks_and_archives():
     site = login_bot()
     update_block_flags(site)
+
+    archiver = MementoArchiver(site)
+    archiver.run_recentchanges()
 
 
 def main():
     scheduler = BlockingScheduler() #BlockingScheduler keeps the script running
 
     scheduler.add_job(
-        update_blocks,
-        trigger=CronTrigger(hour='*/2'),
-        name="Block Flag Sync",
+        update_blocks_and_archives,
+        trigger=CronTrigger(hour='*/1'),
+        name="Block Flag And Archiver Sync",
         misfire_grace_time=3600  # if missed, run within an hour
     )
 
