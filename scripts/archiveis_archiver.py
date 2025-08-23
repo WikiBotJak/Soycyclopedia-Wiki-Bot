@@ -2,7 +2,7 @@ import re
 import requests
 import pywikibot
 
-LINK_RE = re.compile(r"https?://(www\.)?soyjak\.st/[^\s\]\|<>]+")
+LINK_RE = re.compile(r'(?<![=/?])https?://(?:www\.)?soyjak\.st/[^\s\]\|<>]+')
 
 class MementoArchiver:
     def __init__(self, site):
