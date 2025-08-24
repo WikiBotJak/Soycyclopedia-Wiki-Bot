@@ -3,6 +3,7 @@ import requests
 import pywikibot
 
 LINK_RE = re.compile(r'(?<![=/?])https?://(?:www\.)?soyjak\.st/[^\s\]\|<>]+')
+NOARCHIVE_RE = re.compile(r'<!--\s*noarchive\s*-->', re.IGNORECASE)
 
 class MementoArchiver:
     def __init__(self, site):
@@ -26,8 +27,8 @@ class MementoArchiver:
 
     def process_page(self, page):
         """Check a page for raw soyjak.st links, update with archives if available."""
-        if page.namespace() != 0:
-            return
+        # if page.namespace() != 0:
+        #     return
         print(f"[*] Checking links of page {page.title()}")
 
         text = page.text
@@ -35,6 +36,13 @@ class MementoArchiver:
 
         for match in LINK_RE.finditer(text):
             link = match.group(0)
+
+            # Skip if marked with <!--NOARCHIVE-->
+            post_text = text[match.end():].lstrip()
+            if NOARCHIVE_RE.match(post_text):
+                print(f"    → Skipping {link} (marked NOARCHIVE)")
+                continue
+
             print(f"[+] Found raw link: {link}")
             archive_url = self.get_latest_archive(link)
 
