@@ -56,6 +56,6 @@ class MementoArchiver:
     def run_recentchanges(self):
         print("[*] Checking recent pages to update archive links...")
         """Process the most recent changes."""
-        for change in self.site.recentchanges(total=30):
+        for change in self.site.recentchanges(total=20):
             page = pywikibot.Page(self.site, change["title"])
             self.process_page(page)
