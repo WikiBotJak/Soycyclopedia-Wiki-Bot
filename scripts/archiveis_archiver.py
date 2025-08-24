@@ -27,8 +27,8 @@ class MementoArchiver:
 
     def process_page(self, page):
         """Check a page for raw soyjak.st links, update with archives if available."""
-        # if page.namespace() != 0:
-        #     return
+        if page.namespace() != 0:
+            return
         print(f"[*] Checking links of page {page.title()}")
 
         text = page.text
