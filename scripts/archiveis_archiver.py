@@ -52,7 +52,7 @@ class MementoArchiver:
                 text = text.replace(link, archive_url)
                 changed = True
             elif not archive_url and "[needs archive]" not in text:
-                # I would love to auto archive the imageboard links as needed, but for some niggalious reason, that is not supported, so we add an request for archive instead
+                # I would love to auto archive the imageboard links as needed, but for some niggalious reason, that is not supported, so we add a request for archive instead
                 print(f"    → No archive found, marking")
                 text = text.replace(link, f"{link} [needs archive]")
                 changed = True
@@ -64,6 +64,14 @@ class MementoArchiver:
     def run_recentchanges(self):
         print("[*] Checking recent pages to update archive links...")
         """Process the most recent changes."""
+        seen_pages = set()
+
         for change in self.site.recentchanges(total=20):
-            page = pywikibot.Page(self.site, change["title"])
+            title = change["title"]
+            if title in seen_pages:
+                # skip duplicate entry for same page
+                continue
+            seen_pages.add(title)
+
+            page = pywikibot.Page(self.site, title)
             self.process_page(page)
