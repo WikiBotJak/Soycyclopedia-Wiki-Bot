@@ -1,6 +1,7 @@
 import re
 import requests
 import pywikibot
+import os
 
 LINK_RE = re.compile(r'(?<![=/?])https?://(?:www\.)?soyjak\.st/[^\s\]\|<>]+')
 NOARCHIVE_RE = re.compile(r'<!--\s*noarchive\s*-->', re.IGNORECASE)
@@ -12,9 +13,12 @@ class MementoArchiver:
     def get_latest_archive(self, url):
         """Query MementoWeb for an archive of this URL. Return snapshot URL or None."""
         timemap_url = f"http://archive.is/timemap/{url}"
+        headers = {
+            "User-Agent": os.environ['UA_AGENT']
+        }
         try:
             # Fuck me, this api is vantablack coal. Why does it return results like this without json or xml? It is not even RESTful
-            res = requests.get(timemap_url)
+            res = requests.get(timemap_url, headers=headers)
             if res.status_code != 200:
                 return None
             for line in res.text.splitlines():
