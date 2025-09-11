@@ -37,9 +37,6 @@ def update_blocks_and_archives():
 def main():
     scheduler = BlockingScheduler() #BlockingScheduler keeps the script running
 
-    site = login_bot()
-    check_redirects(site)
-
     scheduler.add_job(
         update_blocks_and_archives,
         trigger=CronTrigger(hour='*/1'),
