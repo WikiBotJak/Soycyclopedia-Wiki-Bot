@@ -83,7 +83,7 @@ class InfoboxUpdater:
     def run(self):
         """Run update on all matching pages."""
         pages = list(self.get_pages_using_infobox())
-        print(f"Found {len(pages)} pages using {{Infobox Soyjak}}")
+        print(f"[*] Found {len(pages)} pages using {{Infobox Soyjak}}")
 
         for page in pages:
             try:

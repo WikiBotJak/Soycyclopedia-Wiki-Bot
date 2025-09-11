@@ -3,7 +3,7 @@ from pywikibot.family import Family
 class Family(Family):
     name = 'soyjak'
     langs = {
-        'en': 'wiki.soyjak.st',
+        'en': 'soyjakwiki.org',
     }
 
     def scriptpath(self, code):

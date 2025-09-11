@@ -5,6 +5,7 @@ from scripts.infoboxUpdater import InfoboxUpdater
 from scripts.updateNewesetArticles import update_newest_articles
 from scripts.block_flag_updater import update_block_flags
 from scripts.archiveis_archiver import MementoArchiver
+from scripts.fix_double_redirects import check_redirects
 
 def login_bot():
     site = pywikibot.Site()
@@ -13,10 +14,12 @@ def login_bot():
     print(f"Logged in as: {site.user()}")
     return site
 
-def update_infoboxes():
+def update_infoboxes_and_multi_redirects():
     site = login_bot()
     updater = InfoboxUpdater(site)
     updater.run()
+
+    check_redirects(site)
 
 def update_na():
     site = login_bot()
@@ -33,6 +36,9 @@ def update_blocks_and_archives():
 
 def main():
     scheduler = BlockingScheduler() #BlockingScheduler keeps the script running
+
+    site = login_bot()
+    check_redirects(site)
 
     scheduler.add_job(
         update_blocks_and_archives,
@@ -51,7 +57,7 @@ def main():
 
     # Run every Friday
     scheduler.add_job(
-        update_infoboxes,
+        update_infoboxes_and_multi_redirects,
         trigger=CronTrigger(day_of_week='fri'),
         name="Weekly Infobox Update",
         misfire_grace_time=3600  # if missed, run within an hour
