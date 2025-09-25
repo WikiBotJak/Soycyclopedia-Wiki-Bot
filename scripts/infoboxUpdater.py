@@ -12,7 +12,7 @@ class InfoboxUpdater:
     def get_pages_using_infobox(self):
         """Get all pages that transclude the Infobox Soyjak template."""
         template = pywikibot.Page(self.site, "Template:Infobox Soyjak")
-        return template.embeddedin(namespaces=[0])  # Only search main/article namespace
+        return template.embeddedin(namespaces=[0, 3006])  # Only search main or SNCA namespace
 
     @staticmethod
     def get_variant_count(tag: str) -> int:
