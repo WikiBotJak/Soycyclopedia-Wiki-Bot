@@ -70,7 +70,7 @@ class MementoArchiver:
         """Process the most recent changes."""
         seen_pages = set()
 
-        for change in self.site.recentchanges(total=20):
+        for change in self.site.recentchanges(total=15):
             title = change["title"]
             if title in seen_pages:
                 # skip duplicate entry for same page

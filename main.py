@@ -6,6 +6,7 @@ from scripts.updateNewesetArticles import update_newest_articles
 from scripts.block_flag_updater import update_block_flags
 from scripts.archiveis_archiver import MementoArchiver
 from scripts.fix_double_redirects import check_redirects
+from scripts.edit_warring_detector import check_edit_wars
 
 def login_bot():
     site = pywikibot.Site()
@@ -18,7 +19,6 @@ def update_infoboxes_and_multi_redirects():
     site = login_bot()
     updater = InfoboxUpdater(site)
     updater.run()
-
     check_redirects(site)
 
 def update_na():
@@ -29,13 +29,14 @@ def update_na():
 def update_blocks_and_archives():
     site = login_bot()
     update_block_flags(site)
-
+    check_edit_wars(site)
     archiver = MementoArchiver(site)
     archiver.run_recentchanges()
 
 
 def main():
     scheduler = BlockingScheduler() #BlockingScheduler keeps the script running
+
 
     scheduler.add_job(
         update_blocks_and_archives,
