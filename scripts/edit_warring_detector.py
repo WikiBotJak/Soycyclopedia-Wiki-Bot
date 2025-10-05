@@ -87,7 +87,8 @@ def lock_page_and_notify(site, page_title):
 
 def check_edit_wars(site):
     """Check recent changes for pages in edit wars and take action if needed."""
-    recent_changes = site.recentchanges(total=15, changetype="edit")
+    print("[*] Checking for edit wars...")
+    recent_changes = list(site.recentchanges(total=15))
 
     seen_pages = set()
     for change in recent_changes:
@@ -98,3 +99,4 @@ def check_edit_wars(site):
 
         if detect_edit_war(site, title):
             lock_page_and_notify(site, title)
+    return recent_changes

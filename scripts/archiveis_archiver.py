@@ -7,8 +7,9 @@ LINK_RE = re.compile(r'(?<![=/?])https?://(?:www\.)?soyjak\.st/[^\s\]\|<>]+')
 NOARCHIVE_RE = re.compile(r'<!--\s*noarchive\s*-->', re.IGNORECASE)
 
 class MementoArchiver:
-    def __init__(self, site):
+    def __init__(self, site, changes):
         self.site = site
+        self.changes = changes
 
     def get_latest_archive(self, url):
         """Query MementoWeb for an archive of this URL. Return snapshot URL or None."""
@@ -70,7 +71,7 @@ class MementoArchiver:
         """Process the most recent changes."""
         seen_pages = set()
 
-        for change in self.site.recentchanges(total=15):
+        for change in self.changes:
             title = change["title"]
             if title in seen_pages:
                 # skip duplicate entry for same page
