@@ -23,8 +23,7 @@ def update_infoboxes_and_multi_redirects():
 
 def update_na():
     site = login_bot()
-    updater = update_newest_articles(site)
-    updater.run()
+    update_newest_articles(site)
 
 def update_blocks_and_archives():
     site = login_bot()
@@ -36,6 +35,8 @@ def update_blocks_and_archives():
 
 def main():
     scheduler = BlockingScheduler() #BlockingScheduler keeps the script running
+
+    update_na()
 
     scheduler.add_job(
         update_blocks_and_archives,
