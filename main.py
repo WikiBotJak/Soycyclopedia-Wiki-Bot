@@ -36,8 +36,6 @@ def update_blocks_and_archives():
 def main():
     scheduler = BlockingScheduler() #BlockingScheduler keeps the script running
 
-    update_na()
-
     scheduler.add_job(
         update_blocks_and_archives,
         trigger=CronTrigger(hour='*/1'),
