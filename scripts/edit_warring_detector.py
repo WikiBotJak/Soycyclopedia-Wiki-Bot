@@ -2,12 +2,12 @@ import pywikibot
 from datetime import datetime, timedelta, timezone
 
 # --- CONFIG ---
-EDIT_WAR_THRESHOLD = 4 # Number of back-and-forth edits before triggering
+EDIT_WAR_THRESHOLD = 6 # Number of back-and-forth edits before triggering
 LOCK_EXPIRY = "3 day"  # Temporary protection duration
 PROTECTION_LEVEL = "sysop"
-CONTROVERSIAL_TEMPLATE = "{{Controversial}}"
+CONTROVERSIAL_TEMPLATE = ["{{Controversial}}", "{{Divisive}}"]
 ADMIN_USERNAME = "Cobblestone"  # Who to ping on the talk page after detecting an edit war
-MAX_TIME_WINDOW = timedelta(minutes=90) # max amount of time to check
+MAX_TIME_WINDOW = timedelta(minutes=80) # max amount of time to check
 SIMILAR_DELTA = 20  # bytes within which additions/removals are considered "similar"
 MAX_USERS = 3 # Max distinct users involved for it to count as an edit war
 
@@ -69,7 +69,7 @@ def lock_page_and_notify(site, page_title):
 
     # Add controversial template if not already present
     text = page.get()
-    if CONTROVERSIAL_TEMPLATE not in text:
+    if not any(template in text for template in CONTROVERSIAL_TEMPLATE):
         page.text = CONTROVERSIAL_TEMPLATE + "\n" + text
         page.save(summary="Marking page as controversial due to edit war")
 
