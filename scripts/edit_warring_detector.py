@@ -2,7 +2,7 @@ import pywikibot
 from datetime import datetime, timedelta, timezone
 
 # --- CONFIG ---
-EDIT_WAR_THRESHOLD = 6 # Number of back-and-forth edits before triggering
+EDIT_WAR_THRESHOLD = 5 # Number of back-and-forth edits before triggering
 LOCK_EXPIRY = "3 day"  # Temporary protection duration
 PROTECTION_LEVEL = "sysop"
 CONTROVERSIAL_TEMPLATE = ["{{Controversial}}", "{{Divisive}}"]
