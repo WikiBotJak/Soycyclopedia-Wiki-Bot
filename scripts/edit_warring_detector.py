@@ -2,7 +2,7 @@ import pywikibot
 from datetime import datetime, timedelta, timezone
 
 # --- CONFIG ---
-EDIT_WAR_THRESHOLD = 5 # Number of back-and-forth edits before triggering
+EDIT_WAR_THRESHOLD = 10 # Number of back-and-forth edits before triggering
 LOCK_EXPIRY = "3 day"  # Temporary protection duration
 PROTECTION_LEVEL = "sysop"
 CONTROVERSIAL_TEMPLATE = ["{{Controversial}}", "{{Divisive}}"]
@@ -30,7 +30,7 @@ def detect_edit_war(site, page_title):
         return False
 
     print(f"[*] {len(revisions)} revisions checked on {page_title}")
-    if len(revisions) < EDIT_WAR_THRESHOLD * 2:
+    if len(revisions) < EDIT_WAR_THRESHOLD:
         return False  # Not enough revisions to judge
 
     size_diffs = []
