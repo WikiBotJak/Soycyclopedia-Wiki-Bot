@@ -59,7 +59,7 @@ class MementoArchiver:
             elif not archive_url and "[needs archive]" not in text:
                 # I would love to auto archive the imageboard links as needed, but for some niggalious reason, that is not supported, so we add a request for archive instead
                 print(f"    → No archive found, marking")
-                text = text.replace(link, f"{link} [needs archive]")
+                text = text.replace(link, f"{link} (needs archive)")
                 changed = True
 
         if changed and text != page.text:
