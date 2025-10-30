@@ -51,7 +51,9 @@ class MementoArchiver:
             print(f"[+] Found raw link: {link}")
             archive_url = self.get_latest_archive(link)
 
-            if archive_url and archive_url not in text:
+            if "[needs archive]" in text:
+                pass
+            elif archive_url and archive_url not in text:
                 # Replace raw link with archive
                 print(f"    → Replacing with {archive_url}")
                 text = text.replace(link, archive_url)
