@@ -35,11 +35,8 @@ class InfoboxUpdater:
         print(f"→ Checking [[{page.title()}]]...")
         original_text = page.text
         wikicode = mwparserfromhell.parse(original_text)
+        today_str = datetime.now().strftime("%B %d, %Y").replace(" 0", " ")
         changed = False
-        today_str = datetime.now().strftime("%B {day}{suffix}, %Y").format(
-            day=datetime.now().day,
-            suffix=self.get_day_suffix(datetime.now().day)
-        )
 
         for template in wikicode.filter_templates(recursive=True):
             if template.name.strip().lower() == "infobox soyjak":
@@ -66,12 +63,6 @@ class InfoboxUpdater:
         if changed:
             page.text = str(wikicode)
             page.save(summary="Updated boorusearch post counts")
-
-    @staticmethod
-    def get_day_suffix(day: int) -> str:
-        if 11 <= day <= 13:
-            return "th"
-        return {1: "st", 2: "nd", 3: "rd"}.get(day % 10, "th")
 
     @staticmethod
     def update_as_of_date(text: str, new_date: str) -> str:
