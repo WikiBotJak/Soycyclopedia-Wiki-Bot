@@ -38,9 +38,11 @@ def update_block_flags(site):
         # Check current block status
         block_info = list(site.blocks(users=[username]))
         is_blocked = bool(block_info)
-        is_perm_block = is_blocked and block_info[0]['expiry'] == 'infinity'
 
-        print(f"[*] {username} → Blocked: {is_blocked}, Perm: {is_perm_block}")
+        is_perm_block = is_blocked and block_info[0]['expiry'] == 'infinity'
+        is_sitewide = is_blocked and 'sitewide' in event.params
+
+        print(f"[*] {username} → Blocked: {is_blocked}, Perm: {is_perm_block}, Sitewide: {is_sitewide}")
 
         # Get current content
         if user_page.exists():
@@ -50,14 +52,14 @@ def update_block_flags(site):
 
         has_template = any(t.lower() in text.lower() for t in TEMPLATE_NAMES)
 
-        if is_perm_block and not has_template:
+        if is_perm_block and is_sitewide and not has_template:
             # Add the {{Pemablocked}} template to top
             print(f"[+] Adding Pemablocked to {username}")
             new_text = f"{{{{Permablocked}}}}\n{text}"
             user_page.text = new_text
             user_page.save(summary=SUMMARY_ADD)
 
-        elif not is_perm_block and has_template:
+        elif (not is_perm_block or not is_sitewide) and has_template:
             print(f"[-] Removing Permablocked/Permabanned from {username}")
             code = mwparserfromhell.parse(text)
             for tpl in code.filter_templates():
