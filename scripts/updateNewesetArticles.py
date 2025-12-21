@@ -9,7 +9,7 @@ def update_newest_articles(site):
     new_pages = []
     page = pywikibot.Page(site, page_title)
 
-    for change in site.recentchanges(namespaces=0, changetype='new', total=20):
+    for change in site.recentchanges(namespaces=0, changetype='new', total=50):
         title = change['title']
 
         if title.startswith(excluded_prefix) or 'redirect' in change:
@@ -19,6 +19,9 @@ def update_newest_articles(site):
         page_obj = pywikibot.Page(site, title)
         if not page_obj.exists():
             print(f"[!] Skipping missing/deleted: {title}")
+            continue
+
+        if page_obj.content_model in ('javascript', 'css'):
             continue
 
         new_pages.append(f"[[{title}]]")
