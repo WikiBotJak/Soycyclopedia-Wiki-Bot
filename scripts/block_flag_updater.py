@@ -17,8 +17,13 @@ def is_ip_address(value):
 def update_block_flags(site):
     print("[*] Checking recent block log events...")
 
+    seen_users = set()
+
     for event in site.logevents('block', total=5):
         username = event.page().title(with_ns=False)
+        if username in seen_users:
+            continue
+        seen_users.add(username)
 
         #Skip temporary anon usernames
         if username.startswith('~'):
