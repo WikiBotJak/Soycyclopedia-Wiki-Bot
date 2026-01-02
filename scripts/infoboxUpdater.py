@@ -24,9 +24,14 @@ class InfoboxUpdater:
         res.raise_for_status()
         data = res.json()
 
-        if isinstance(data, dict) and data:
-            first_key = next(iter(data))
-            return int(data[first_key])
+        if isinstance(data, dict):
+            if tag in data:
+                return int(data[tag])
+
+            if data:
+                first_key = next(iter(data))
+                return int(data[first_key])
+
         return 0
 
     @staticmethod
