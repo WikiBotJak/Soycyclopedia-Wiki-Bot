@@ -39,24 +39,21 @@ def main():
     scheduler.add_job(
         update_blocks_and_archives,
         trigger=CronTrigger(hour='*/1'),
-        name="Block Flag And Archiver Sync",
-        misfire_grace_time=3600  # if missed, run within an hour
+        name="Block Flag And Archiver Sync"
     )
 
     # Run daily
     scheduler.add_job(
         update_na,
         trigger=CronTrigger(hour=0, minute=0),
-        name="Daily Main Page Article Update",
-        misfire_grace_time=3600 # if missed, run within an hour
+        name="Daily Main Page Article Update"
     )
 
     # Run every Friday
     scheduler.add_job(
         update_infoboxes_and_multi_redirects,
         trigger=CronTrigger(day_of_week='fri'),
-        name="Weekly Infobox Update",
-        misfire_grace_time=3600  # if missed, run within an hour
+        name="Weekly Infobox Update"
     )
 
     try:
