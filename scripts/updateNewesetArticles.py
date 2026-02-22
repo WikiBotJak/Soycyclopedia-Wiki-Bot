@@ -2,6 +2,7 @@ import pywikibot
 
 excluded_prefix = "Featured Gem:Main Page/Featured Gem"
 page_title = "Main Page/NA"
+disambig_category = "Category:Disambiguation pages"
 max_new_pages = 5
 
 
@@ -22,6 +23,11 @@ def update_newest_articles(site):
             continue
 
         if page_obj.content_model in ('javascript', 'css'):
+            continue
+
+        categories = [cat.title() for cat in page_obj.categories()]
+        if disambig_category in categories:
+            print(f"[!] Skipping disambiguation page: {title}")
             continue
 
         new_pages.append(f"[[{title}]]")
