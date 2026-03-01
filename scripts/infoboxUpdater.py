@@ -16,7 +16,7 @@ class InfoboxUpdater:
 
     @staticmethod
     def get_variant_count(tag: str) -> int:
-        url = f"https://soybooru.com/api/internal/autocomplete?s={tag}"
+        url = f"https://soybooru.com/api/booru/posts?q={tag}"
         headers = {
             "User-Agent": os.environ['UA_AGENT']
         }
@@ -24,15 +24,11 @@ class InfoboxUpdater:
         res.raise_for_status()
         data = res.json()
 
-        if isinstance(data, dict):
-            if tag in data:
-                return int(data[tag])
-
-            if data:
-                first_key = next(iter(data))
-                return int(data[first_key])
-
-        return 0
+        value = data.get('totalCount')
+        if value:
+            return int(value)
+        else:
+            return 0
 
     @staticmethod
     def update_page_variants(self, page: pywikibot.Page):
