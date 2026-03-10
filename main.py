@@ -10,48 +10,58 @@ from scripts.edit_warring_detector import check_edit_wars
 
 def login_bot():
     site = pywikibot.Site()
-    if not site.logged_in():
-        site.login()
+    site.login()
     print(f"Logged in as: {site.user()}")
     return site
 
-def update_infoboxes_and_multi_redirects():
-    site = login_bot()
+
+def ensure_login(site):
+    if not site.logged_in():
+        print("[*] Session expired, logging in again...")
+        site.login()
+
+def update_infoboxes_and_multi_redirects(site):
+    ensure_login(site)
     updater = InfoboxUpdater(site)
     updater.run()
     check_redirects(site)
 
-def update_na():
-    site = login_bot()
+
+def update_na(site):
+    ensure_login(site)
     update_newest_articles(site)
 
-def update_blocks_and_archives():
-    site = login_bot()
+
+def update_blocks_and_archives(site):
+    ensure_login(site)
     update_block_flags(site)
     preloaded_recent_changes = check_edit_wars(site)
-    #archiver = MementoArchiver(site, preloaded_recent_changes)
-    #archiver.run_recentchanges()
-
+    # archiver = MementoArchiver(site, preloaded_recent_changes)
+    # archiver.run_recentchanges()
 
 def main():
-    scheduler = BlockingScheduler() #BlockingScheduler keeps the script running
+    scheduler = BlockingScheduler()
 
+    # LOGIN ONCE
+    site = login_bot()
+
+    # Hourly job
     scheduler.add_job(
-        update_blocks_and_archives,
+        lambda: update_blocks_and_archives(site),
         trigger=CronTrigger(hour='*/1'),
         name="Block Flag And Archiver Sync"
     )
 
-    # Run daily
+    # Daily job (midnight)
     scheduler.add_job(
-        update_na,
+        lambda: update_na(site),
         trigger=CronTrigger(hour=0, minute=0),
         name="Daily Main Page Article Update"
     )
 
-    # Run every Friday
+    # Weekly job (Friday)
     scheduler.add_job(
-        update_infoboxes_and_multi_redirects,
+        lambda: update_infoboxes_and_multi_redirects(site),
         trigger=CronTrigger(day_of_week='fri'),
         name="Weekly Infobox Update"
     )
@@ -62,6 +72,6 @@ def main():
     except (KeyboardInterrupt, SystemExit):
         print("[x] Scheduler shutting down...")
 
-
+# entry point
 if __name__ == '__main__':
     main()
