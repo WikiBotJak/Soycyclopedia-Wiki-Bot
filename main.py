@@ -39,19 +39,25 @@ def main():
     scheduler.add_job(
         update_blocks_and_archives,
         trigger=CronTrigger(hour="*/1"),
-        name="Block Flag And Archiver Sync"
+        name="Block Flag And Archiver Sync",
+        coalesce=True,
+        misfire_grace_time=3600
     )
 
     scheduler.add_job(
         update_na,
         trigger=CronTrigger(hour=0, minute=0),
-        name="Daily Main Page Article Update"
+        name="Daily Main Page Article Update",
+        coalesce=True,
+        misfire_grace_time=3600 
     )
 
     scheduler.add_job(
         update_infoboxes_and_multi_redirects,
         trigger=CronTrigger(day_of_week="fri"),
-        name="Weekly Infobox Update"
+        name="Weekly Infobox Update",
+        coalesce=True,
+        misfire_grace_time=3600 
     )
 
     try:
