@@ -29,7 +29,7 @@ def update_blocks_and_archives():
     site = get_site()
     update_block_flags(site)
 
-    preloaded_recent_changes = check_edit_wars(site)
+    # preloaded_recent_changes = check_edit_wars(site)
     # archiver = MementoArchiver(site, preloaded_recent_changes)
     # archiver.run_recentchanges()
 
