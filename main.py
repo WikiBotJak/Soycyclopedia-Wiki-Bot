@@ -8,6 +8,7 @@ from scripts.block_flag_updater import update_block_flags
 from scripts.archiveis_archiver import MementoArchiver
 from scripts.fix_double_redirects import check_redirects
 from scripts.edit_warring_detector import check_edit_wars
+from scripts.redirect_new_snca_pages import scan_snca_pages
 
 def get_site():
     site = pywikibot.Site()
@@ -23,6 +24,7 @@ def update_infoboxes_and_multi_redirects():
 def update_na():
     site = get_site()
     update_newest_articles(site)
+    scan_snca_pages(site)
 
 
 def update_blocks_and_archives():
