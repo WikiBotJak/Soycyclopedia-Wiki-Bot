@@ -19,12 +19,12 @@ def update_infoboxes_and_multi_redirects():
     updater = InfoboxUpdater(site)
     updater.run()
     check_redirects(site)
+    scan_snca_pages(site)
 
 
 def update_na():
     site = get_site()
     update_newest_articles(site)
-    scan_snca_pages(site)
 
 
 def update_blocks_and_archives():
