@@ -1,9 +1,6 @@
-import os
-
 import pywikibot
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
-from pywikibot.login import BotPassword
 
 from scripts.infoboxUpdater import InfoboxUpdater
 from scripts.updateNewesetArticles import update_newest_articles
@@ -11,36 +8,30 @@ from scripts.block_flag_updater import update_block_flags
 from scripts.archiveis_archiver import MementoArchiver
 from scripts.fix_double_redirects import check_redirects
 from scripts.edit_warring_detector import check_edit_wars
+from scripts.redirect_new_snca_pages import scan_snca_pages
 
-def login_bot():
-    """Create a new Site object and log in with bot password."""
+def get_site():
     site = pywikibot.Site()
-    bot_password = os.environ.get("WIKI_PASS")
-    if not bot_password:
-        raise RuntimeError("WIKI_PASS environment variable not set!")
-    site.login(BotPassword("SoycyclopediaBot", bot_password))
-    print(f"Logged in as: {site.user()}")
+    site.login()
+    print(f"[*] Logged in as {site.user()}")
     return site
 
-
-def ensure_login(site):
-    if not site.logged_in():
-        print("[*] Session expired, logging in again...")
-        site.login()
-
 def update_infoboxes_and_multi_redirects():
-    site = login_bot()
+    site = get_site()
     updater = InfoboxUpdater(site)
     updater.run()
     check_redirects(site)
 
+
 def update_na():
-    site = login_bot()
+    site = get_site()
     update_newest_articles(site)
+    scan_snca_pages(site)
 
 def update_blocks_and_archives():
-    site = login_bot()
+    site = get_site()
     update_block_flags(site)
+
     preloaded_recent_changes = check_edit_wars(site)
     # archiver = MementoArchiver(site, preloaded_recent_changes)
     # archiver.run_recentchanges()
@@ -48,27 +39,24 @@ def update_blocks_and_archives():
 def main():
     scheduler = BlockingScheduler()
 
-    # Hourly job
     scheduler.add_job(
         update_blocks_and_archives,
-        trigger=CronTrigger(hour='*/1'),
+        trigger=CronTrigger(hour="*/1"),
         name="Block Flag And Archiver Sync"
     )
 
-    # Daily job
     scheduler.add_job(
         update_na,
         trigger=CronTrigger(hour=0, minute=0),
+        max_instances=1,
         name="Daily Main Page Article Update"
     )
 
-    # Weekly job
     scheduler.add_job(
         update_infoboxes_and_multi_redirects,
-        trigger=CronTrigger(day_of_week='fri'),
+        trigger=CronTrigger(day_of_week="fri"),
         name="Weekly Infobox Update"
     )
-
 
     try:
         print("[*] Starting scheduler...")
