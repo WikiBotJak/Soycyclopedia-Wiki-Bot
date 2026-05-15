@@ -59,7 +59,9 @@ def fix_broken_redirects(site):
                 page.save(summary=f"Fixed broken redirect")
                 print(f"[✓] Fixed broken redirect {page.title()} → {final_target.title()}")
             else:
-                page.delete(reason="Broken redirect", mark=True)
+                page.text = "{{delete|Broken redirect}}\n" + page.text
+                page.save(summary="Marking broken redirect for deletion")
+
                 print(f"[✓] Marked broken redirect {page.title()} for deletion")
 
 
