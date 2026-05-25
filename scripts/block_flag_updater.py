@@ -3,9 +3,12 @@ import re
 import ipaddress
 import mwparserfromhell
 
-TEMPLATE_NAMES = ["{{Permablocked}}", "{{Permabanned}}"]
-SUMMARY_ADD = "Add {{Permablocked}} to permanently blocked user"
-SUMMARY_REMOVE = "Remove {{Permablocked}} from unblocked user"
+PERM_TEMPLATES = ["{{Permablocked}}", "{{Permabanned}}"]
+TEMP_TEMPLATES = ["{{Banned}}", "{{Blocked}}"]
+
+SUMMARY_ADD_PERM = "Add {{Permablocked}} to permanently blocked user"
+SUMMARY_ADD_TEMP = "Add {{Blocked}} to temporarily blocked user"
+SUMMARY_REMOVE = "Remove block templates from unblocked user"
 
 def is_ip_address(value):
     try:
@@ -55,21 +58,41 @@ def update_block_flags(site):
         else:
             text = ""
 
-        has_template = any(t.lower() in text.lower() for t in TEMPLATE_NAMES)
+        has_perm_template = any(
+            t.lower() in text.lower()
+            for t in PERM_TEMPLATES
+        )
 
-        if is_perm_block and is_sitewide and not has_template:
-            # Add the {{Pemablocked}} template to top
-            print(f"[+] Adding Pemablocked to {username}")
+        has_temp_template = any(
+            t.lower() in text.lower()
+            for t in TEMP_TEMPLATES
+        )
+
+        if is_perm_block and is_sitewide and not has_perm_template:
+            # Add the {{Permablocked}} template to top
+            print(f"[+] Adding Permablocked to {username}")
             new_text = f"{{{{Permablocked}}}}\n{text}"
             user_page.text = new_text
-            user_page.save(summary=SUMMARY_ADD)
+            user_page.save(summary=SUMMARY_ADD_PERM)
+        elif is_blocked and is_sitewide and not is_perm_block and not has_temp_template:
+            # Add the {{Blocked}} template to top
+            print(f"[+] Adding Blocked to {username}")
 
-        elif (not is_perm_block or not is_sitewide) and has_template:
-            print(f"[-] Removing Permablocked/Permabanned from {username}")
+            new_text = f"{{{{Blocked}}}}\n{text}"
+            user_page.text = new_text
+            user_page.save(summary=SUMMARY_ADD_PERM)
+
+        elif ((is_perm_block and is_sitewide and has_temp_template) or
+        (is_blocked and is_sitewide and not is_perm_block and has_perm_template)):
+            print(f"[-] Removing Permablocked/Blocked from {username}")
             code = mwparserfromhell.parse(text)
             for tpl in code.filter_templates():
-                name = tpl.name.strip().lower()
-                if name in ("permablocked", "permabanned"):
+                print(tpl)
+
+                if (
+                    tpl in PERM_TEMPLATES or
+                    tpl in TEMP_TEMPLATES
+                ):
                     code.remove(tpl)
 
             new_text = str(code).lstrip('\n')
