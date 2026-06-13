@@ -1,7 +1,13 @@
+import os
+
 import pywikibot
+import requests
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
 
+from scripts.auto_welcome import check_new_users
+from scripts.booru_user_exporter import BooruUserExporter
+from scripts.forgotten_articles import sync_dust
 from scripts.infoboxUpdater import InfoboxUpdater
 from scripts.updateNewesetArticles import update_newest_articles
 from scripts.block_flag_updater import update_block_flags
@@ -12,6 +18,7 @@ from scripts.redirect_new_snca_pages import scan_snca_pages
 
 def get_site():
     site = pywikibot.Site()
+    site.login()
     return site
 
 def update_infoboxes_and_multi_redirects():
@@ -24,12 +31,13 @@ def update_infoboxes_and_multi_redirects():
 def update_na():
     site = get_site()
     update_newest_articles(site)
-    scan_snca_pages(site)
+    check_new_users(site)
 
 
 def update_blocks_and_archives():
     site = get_site()
     update_block_flags(site)
+    scan_snca_pages(site)
 
     # preloaded_recent_changes = check_edit_wars(site)
     # archiver = MementoArchiver(site, preloaded_recent_changes)
@@ -37,7 +45,7 @@ def update_blocks_and_archives():
 
 def main():
     scheduler = BlockingScheduler()
-    
+
     scheduler.add_job(
         update_blocks_and_archives,
         trigger=CronTrigger(hour="*/1"),

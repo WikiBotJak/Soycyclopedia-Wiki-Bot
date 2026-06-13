@@ -16,7 +16,7 @@ class InfoboxUpdater:
 
     @staticmethod
     def get_variant_count(tag: str) -> int:
-        url = f"https://soybooru.com/api/booru/posts?q={tag}"
+        url = f"https://soybooru.com/api/booru/posts?q={tag}&pageSize=1"
         headers = {
             "User-Agent": os.environ['UA_AGENT']
         }
