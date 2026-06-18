@@ -3,6 +3,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 from scripts.auto_welcome import check_new_users
+from scripts.community_dailyjak import create_community_dailyjak
 from scripts.infoboxUpdater import InfoboxUpdater
 from scripts.updateNewesetArticles import update_newest_articles
 from scripts.block_flag_updater import update_block_flags
@@ -15,13 +16,6 @@ def get_site():
     site = pywikibot.Site()
     site.login()
     return site
-
-def update_infoboxes_and_multi_redirects():
-    site = get_site()
-    updater = InfoboxUpdater(site)
-    updater.run()
-    check_redirects(site)
-    scan_snca_pages(site)
 
 
 def update_na():
@@ -38,8 +32,24 @@ def update_blocks_and_archives():
     # archiver = MementoArchiver(site, preloaded_recent_changes)
     # archiver.run_recentchanges()
 
+def update_community_dailyjak():
+    site = get_site()
+    create_community_dailyjak(site)
+    updater = InfoboxUpdater(site)
+    updater.run()
+    check_redirects(site)
+    scan_snca_pages(site)
+
 def main():
     scheduler = BlockingScheduler()
+
+    scheduler.add_job(
+        update_community_dailyjak,
+        trigger=CronTrigger(day_of_week="sun", hour=0, minute=1),
+        name="Weekly Community Dailyjak",
+        coalesce=True,
+        misfire_grace_time=3600
+    )
 
     scheduler.add_job(
         update_blocks_and_archives,
@@ -53,14 +63,6 @@ def main():
         update_na,
         trigger=CronTrigger(hour=0, minute=0),
         name="Daily Main Page Article Update",
-        coalesce=True,
-        misfire_grace_time=3600 
-    )
-
-    scheduler.add_job(
-        update_infoboxes_and_multi_redirects,
-        trigger=CronTrigger(day_of_week="fri"),
-        name="Weekly Infobox Update",
         coalesce=True,
         misfire_grace_time=3600 
     )
