@@ -7,7 +7,8 @@ from urllib.parse import urlencode
 
 import mwparserfromhell
 import pywikibot
-import requests
+
+from Services.ru_account_service import SoybooruAuth
 
 BOORU_API = "https://soybooru.com/api/booru/posts"
 DAILYJAK_ARCHIVE_PAGE = "Main Page/The Dailyjak"
@@ -110,7 +111,7 @@ def find_next_available_slot(page_text):
 
 
 
-def choose_unused_post(page_text):
+def choose_unused_post(page_text, auth):
     today = datetime.utcnow().date()
     end_date = today - timedelta(days=7)
     start_date = end_date - timedelta(days=6)
@@ -124,14 +125,10 @@ def choose_unused_post(page_text):
         "pageSize": 5,
         "q": query
     })
-    headers = {
-        "User-Agent": os.environ['UA_AGENT']
-    }
 
     print(f"[*] Querying SoyBooru: {query}")
 
-    res = requests.get(url, headers=headers)
-    res.raise_for_status()
+    res = auth.get(url)
     data = res.json()
 
     if not data["posts"]:
@@ -161,22 +158,16 @@ def choose_unused_post(page_text):
     print("[!] All checked top posts were already used or invalid")
     return None, start_date, end_date
 
-def download_post_file(post):
+def download_post_file(post, auth):
     post_id = post["id"]
     ext = extension_from_post(post)
 
     url = f"{BOORU_API}/{post_id}/file"
-    headers = {
-        "User-Agent": os.environ['UA_AGENT']
-    }
-
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=ext)
 
     print(f"[*] Downloading SoyBooru post #{post_id}")
 
-    with requests.get(url, headers=headers, stream=True) as res:
-        res.raise_for_status()
-
+    with auth.get(url, stream=True) as res:
         for chunk in res.iter_content(chunk_size=1024 * 1024):
             if chunk:
                 tmp.write(chunk)
@@ -197,6 +188,22 @@ def upload_file_to_wiki(site, local_path, wiki_filename, post, start_date, end_d
     file_page.upload(source=local_path, comment=comment, text=description, ignore_warnings=True)
 
     return file_page
+
+def add_soyboor_comment(slot, post, auth):
+    post_id = post["id"]
+
+    url = f"{BOORU_API}/{post_id}/comments"
+    r = auth.post(url, json={
+        "content": f"[b][size=48px][color=#eab308]Dailyjakked: {slot.date_text}[/color][/size][/b]",
+        "isAnonymous": False,
+    })
+
+    try:
+        r.raise_for_status()
+        return True
+    except Exception:
+        return False
+
 
 def create_dailyjak_page(site, slot, wiki_filename, post):
     title = f"Dailyjak:{slot.date_text}"
@@ -266,10 +273,12 @@ def replace_slot_in_archive(page_text, slot, wiki_filename):
 
 
 def create_community_dailyjak(site):
+    auth = SoybooruAuth()
+
     archive_page = pywikibot.Page(site, DAILYJAK_ARCHIVE_PAGE)
     archive_text = archive_page.text
 
-    post, start_date, end_date = choose_unused_post(archive_text)
+    post, start_date, end_date = choose_unused_post(archive_text, auth)
     if not post:
         return
 
@@ -283,7 +292,7 @@ def create_community_dailyjak(site):
     local_path = None
 
     try:
-        local_path = download_post_file(post)
+        local_path = download_post_file(post, auth)
 
         upload_file_to_wiki(site, local_path, wiki_filename, post, start_date, end_date)
         create_dailyjak_page(site, slot, wiki_filename, post)
@@ -291,6 +300,9 @@ def create_community_dailyjak(site):
 
         if new_archive_text:
             create_archive_page(new_archive_text, archive_text, archive_page, slot, post)
+            add_soyboor_comment(slot, post, auth)
     finally:
         if local_path and os.path.exists(local_path):
             os.remove(local_path)
+
+    return auth

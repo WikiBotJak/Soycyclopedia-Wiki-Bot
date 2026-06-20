@@ -34,8 +34,8 @@ def update_blocks_and_archives():
 
 def update_community_dailyjak():
     site = get_site()
-    create_community_dailyjak(site)
-    updater = InfoboxUpdater(site)
+    auth = create_community_dailyjak(site)
+    updater = InfoboxUpdater(site, auth)
     updater.run()
     check_redirects(site)
     scan_snca_pages(site)

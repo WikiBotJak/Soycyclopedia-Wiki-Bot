@@ -5,23 +5,22 @@ from datetime import datetime
 import re
 import os
 
+from pip._internal.network import auth
+
+
 class InfoboxUpdater:
-    def  __init__(self, site):
+    def  __init__(self, site, auth):
         self.site = site
+        self.auth = auth
 
     def get_pages_using_infobox(self):
         """Get all pages that transclude the Infobox Soyjak template."""
         template = pywikibot.Page(self.site, "Template:Infobox Soyjak")
         return template.embeddedin(namespaces=[0, 3006])  # Only search main or SNCA namespace
 
-    @staticmethod
-    def get_variant_count(tag: str) -> int:
+    def get_variant_count(self, tag: str) -> int:
         url = f"https://soybooru.com/api/booru/posts?q={tag}&pageSize=1"
-        headers = {
-            "User-Agent": os.environ['UA_AGENT']
-        }
-        res = requests.get(url, headers=headers)
-        res.raise_for_status()
+        res = self.auth.get(url)
         data = res.json()
 
         value = data.get('totalCount')
