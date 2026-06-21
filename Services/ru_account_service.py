@@ -1,3 +1,4 @@
+import datetime
 import hashlib
 import json
 import os
@@ -24,6 +25,7 @@ class SoybooruAuth:
 
         self.token = None
         self.refresh_token = None
+        self.expires_at = None
 
         self.load_tokens()
 
@@ -36,29 +38,29 @@ class SoybooruAuth:
 
         self.token = data.get("token")
         self.refresh_token = data.get("refreshToken")
+        self.expires_at = data.get("expiresAt")
 
     def save_tokens(self):
         with open("tokens.json", "w") as f:
             json.dump({
                 "token": self.token,
-                "refreshToken": self.refresh_token
+                "refreshToken": self.refresh_token,
+                "expiresAt": self.expires_at
             }, f)
 
     def token_expired(self):
-        if not self.token:
+        if not self.token or not self.expires_at:
             return True
 
         try:
-            claims = jwt.decode(
-                self.token,
-                options={
-                    "verify_signature": False,
-                    "verify_exp": False
-                }
+            expires = datetime.datetime.fromisoformat(
+                self.expires_at.replace("Z", "+00:00")
             )
-            return claims["exp"] <= time.time() + 300
+
+            return datetime.datetime.now(datetime.timezone.utc) >= expires
+
         except Exception as e:
-            print(e)
+            print(f"[!] Could not parse expiresAt: {e}")
             return True
 
     def has_leading_zero_bits(self, digest: bytes, difficulty: int):
@@ -148,6 +150,7 @@ class SoybooruAuth:
 
         self.token = data["token"]
         self.refresh_token = data["refreshToken"]
+        self.expires_at = data["expiresAt"]
 
         self.save_tokens()
 
