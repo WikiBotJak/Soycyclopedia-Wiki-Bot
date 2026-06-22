@@ -189,17 +189,18 @@ def upload_file_to_wiki(site, local_path, wiki_filename, post, start_date, end_d
 
     return file_page
 
-def add_soyboor_comment(slot, post, auth):
-    post_id = post["id"]
-
-    url = f"{BOORU_API}/{post_id}/comments"
-    r = auth.post(url, json={
-        "content": f"[b][size=48px][color=#eab308]Dailyjakked: {slot.date_text}[/color][/size][/b]",
-        "isAnonymous": False,
-    })
-
+def add_soyboor_comment_and_favorite(slot, post, auth):
     try:
-        r.raise_for_status()
+        post_id = post["id"]
+
+        urlComment = f"{BOORU_API}/{post_id}/comments"
+        auth.post(urlComment, json={
+            "content": f"[b][size=48px][color=#eab308]Dailyjakked: {slot.date_text}[/color][/size][/b]",
+            "isAnonymous": False,
+        })
+
+        urlFavorite = f"{BOORU_API}/{post_id}/favorite"
+        auth.post(urlFavorite)
         return True
     except Exception:
         return False
@@ -300,7 +301,7 @@ def create_community_dailyjak(site):
 
         if new_archive_text:
             create_archive_page(new_archive_text, archive_text, archive_page, slot, post)
-            add_soyboor_comment(slot, post, auth)
+            add_soyboor_comment_and_favorite(slot, post, auth)
     finally:
         if local_path and os.path.exists(local_path):
             os.remove(local_path)
