@@ -2,9 +2,11 @@ import pywikibot
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
 
+from Services.ru_account_service import SoybooruAuth
 from scripts.auto_welcome import check_new_users
 from scripts.community_dailyjak import create_community_dailyjak
 from scripts.infoboxUpdater import InfoboxUpdater
+from scripts.tag_last_posts import tag_last_posts
 from scripts.updateNewesetArticles import update_newest_articles
 from scripts.block_flag_updater import update_block_flags
 from scripts.archiveis_archiver import MementoArchiver
@@ -27,6 +29,7 @@ def update_na():
 def update_blocks_and_archives():
     site = get_site()
     update_block_flags(site)
+    tag_last_posts()
 
     # preloaded_recent_changes = check_edit_wars(site)
     # archiver = MementoArchiver(site, preloaded_recent_changes)
@@ -53,7 +56,7 @@ def main():
 
     scheduler.add_job(
         update_blocks_and_archives,
-        trigger=CronTrigger(hour="*/1"),
+        trigger=CronTrigger(hour="*/2"),
         name="Block Flag And Archiver Sync",
         coalesce=True,
         misfire_grace_time=3600

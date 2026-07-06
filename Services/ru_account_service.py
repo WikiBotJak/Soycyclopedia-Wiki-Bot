@@ -201,3 +201,6 @@ class SoybooruAuth:
 
     def post(self, url, json=None, **kwargs):
         return self.request("POST", url, json=json, **kwargs)
+
+    def put(self, url, json=None, **kwargs):
+        return self.request("PUT", url, json=json, **kwargs)
