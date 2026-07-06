@@ -73,7 +73,7 @@ def update_blocks_and_archives():
 
     auth = get_ru_auth_if_allowed()
     if auth:
-        tag_last_posts()
+        tag_last_posts(auth)
 
 def update_community_dailyjak():
     site = get_site_if_allowed()

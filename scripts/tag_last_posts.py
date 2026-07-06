@@ -1,5 +1,3 @@
-from Services.ru_account_service import SoybooruAuth
-
 API_BASE = "https://soybooru.com/api"
 BOORU_POSTS = f"{API_BASE}/booru/posts"
 
@@ -74,10 +72,6 @@ def put_tags(auth, post_id, tags):
 def add_last_post_tag(auth, post):
     post_id = post["id"]
 
-    if has_last_post_tag(post):
-        print(f"[-] Post #{post_id} already has meta:last_post")
-        return False
-
     tags = build_tag_payload(post)
     tags.append("meta:last_post")
     put_tags(auth, post_id, tags)
@@ -85,7 +79,6 @@ def add_last_post_tag(auth, post):
     auth.put(f"{BOORU_POSTS}/{post_id}/tags", json=tags)
 
     print(f"[+] Tagged post #{post_id}: https://soybooru.com/post/view/{post_id}")
-
     return True
 
 def remove_last_post_tag(auth, post):
@@ -122,8 +115,7 @@ def sync_last_post_tag(auth, username):
             f"(permabanned={currently_permabanned}, tagged={currently_tagged})"
         )
 
-def tag_last_posts():
-    auth = SoybooruAuth()
+def tag_last_posts(auth):
     users = get_recent_moderation_users(auth)
 
     for username in sorted(users):
