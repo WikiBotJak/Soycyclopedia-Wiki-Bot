@@ -19,32 +19,81 @@ def get_site():
     site.login()
     return site
 
+def is_wiki_blocked(site):
+    data = site.simple_request(
+        action="query",
+        meta="userinfo",
+        uiprop="blockinfo"
+    ).submit()
+
+    userinfo = data.get("query", {}).get("userinfo", {})
+    return "blockedby" in userinfo
+
+
+def is_ru_banned(auth):
+    res = auth.get(f"https://soybooru.com/api/User/Dailyjak")
+    res.raise_for_status()
+
+    data = res.json()
+    return bool(data.get("activeBans") or data.get("activeBanZones"))
+
+def get_ru_auth_if_allowed():
+    auth = SoybooruAuth()
+
+    if is_ru_banned(auth):
+        print("[x] RU bot is banned. Skipping SoyBooru tasks.")
+        return None
+
+    return auth
+
+
+def get_site_if_allowed():
+    site = get_site()
+
+    if is_wiki_blocked(site):
+        print("[x] Wiki bot is banned. Skipping wiki tasks.")
+        return None
+
+    return site
 
 def update_na():
-    site = get_site()
+    site = get_site_if_allowed()
+
+    if not site:
+        return
+
     update_newest_articles(site)
     check_new_users(site)
 
 
 def update_blocks_and_archives():
-    site = get_site()
-    update_block_flags(site)
-    tag_last_posts()
+    site = get_site_if_allowed()
+    if site:
+        update_block_flags(site)
 
-    # preloaded_recent_changes = check_edit_wars(site)
-    # archiver = MementoArchiver(site, preloaded_recent_changes)
-    # archiver.run_recentchanges()
+    auth = get_ru_auth_if_allowed()
+    if auth:
+        tag_last_posts()
 
 def update_community_dailyjak():
-    site = get_site()
-    auth = create_community_dailyjak(site)
-    updater = InfoboxUpdater(site, auth)
-    updater.run()
+    site = get_site_if_allowed()
+    if not site:
+        return
+
+    auth = get_ru_auth_if_allowed()
+    if auth:
+        auth = create_community_dailyjak(site)
+        updater = InfoboxUpdater(site, auth)
+        updater.run()
+
     check_redirects(site)
     scan_snca_pages(site)
 
+
 def main():
     scheduler = BlockingScheduler()
+
+    update_blocks_and_archives()
 
     scheduler.add_job(
         update_community_dailyjak,
