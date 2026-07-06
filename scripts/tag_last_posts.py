@@ -76,8 +76,6 @@ def add_last_post_tag(auth, post):
     tags.append("meta:last_post")
     put_tags(auth, post_id, tags)
 
-    auth.put(f"{BOORU_POSTS}/{post_id}/tags", json=tags)
-
     print(f"[+] Tagged post #{post_id}: https://soybooru.com/post/view/{post_id}")
     return True
 

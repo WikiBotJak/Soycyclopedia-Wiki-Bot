@@ -93,8 +93,6 @@ def update_community_dailyjak():
 def main():
     scheduler = BlockingScheduler()
 
-    update_blocks_and_archives()
-
     scheduler.add_job(
         update_community_dailyjak,
         trigger=CronTrigger(day_of_week="sun", hour=0, minute=1),
