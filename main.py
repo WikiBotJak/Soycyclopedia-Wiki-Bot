@@ -82,7 +82,7 @@ def update_community_dailyjak():
 
     auth = get_ru_auth_if_allowed()
     if auth:
-        auth = create_community_dailyjak(site)
+        create_community_dailyjak(site, auth)
         updater = InfoboxUpdater(site, auth)
         updater.run()
 

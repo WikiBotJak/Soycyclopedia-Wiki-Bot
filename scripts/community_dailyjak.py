@@ -273,8 +273,7 @@ def replace_slot_in_archive(page_text, slot, wiki_filename):
 
 
 
-def create_community_dailyjak(site):
-    auth = SoybooruAuth()
+def create_community_dailyjak(site, auth):
 
     archive_page = pywikibot.Page(site, DAILYJAK_ARCHIVE_PAGE)
     archive_text = archive_page.text
