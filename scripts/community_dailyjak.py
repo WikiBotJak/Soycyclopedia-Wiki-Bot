@@ -259,29 +259,6 @@ def replace_slot_in_archive(page_text, slot, wiki_filename):
     return None
 
 
-def print_response(label, response):
-    print(f"\n--- {label} ---")
-    print(f"Request: {response.request.method} {response.request.url}")
-    print(f"Status: {response.status_code}")
-    print(f"Content-Type: {response.headers.get('Content-Type')}")
-    print("Headers:")
-    for key, value in response.headers.items():
-        print(f"  {key}: {value}")
-    print("Body:")
-    print(response.text[:2000])
-
-def test_favorite(auth, post_id=255644):
-    comment_url = f"{BOORU_API}/{post_id}/comments"
-    favorite_url = f"{BOORU_API}/{post_id}/favorite"
-
-
-    favorite = auth.post(
-        favorite_url,
-        json={}
-    )
-    print_response("FAVORITE RESPONSE", favorite)
-
-
 def create_community_dailyjak(site, auth):
 
     archive_page = pywikibot.Page(site, DAILYJAK_ARCHIVE_PAGE)

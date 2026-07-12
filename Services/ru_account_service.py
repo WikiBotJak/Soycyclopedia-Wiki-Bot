@@ -169,32 +169,57 @@ class SoybooruAuth:
             self.login()
 
     def request(self, method, url, **kwargs):
-        self.ensure_token()
+        last_error = None
 
-        headers = {
-            "User-Agent": os.environ["UA_AGENT"],
-            "Authorization": f"Bearer {self.token}"
-        }
+        for attempt in range(2):
+            try:
+                self.ensure_token()
 
-        r = self.session.request(
-            method,
-            url,
-            headers=headers,
-            **kwargs
-        )
+                headers = {
+                    "User-Agent": os.environ["UA_AGENT"],
+                    "Authorization": f"Bearer {self.token}"
+                }
 
-        if r.status_code == 449:
-            self.complete_pow()
+                r = self.session.request(
+                    method,
+                    url,
+                    headers=headers,
+                    **kwargs
+                )
 
-            r = self.session.request(
-                method,
-                url,
-                headers=headers,
-                **kwargs
-            )
+                if r.status_code == 449:
+                    self.complete_pow()
 
-        r.raise_for_status()
-        return r
+                    r = self.session.request(
+                        method,
+                        url,
+                        headers=headers,
+                        **kwargs
+                    )
+
+                r.raise_for_status()
+                return r
+
+            except requests.RequestException as exc:
+                last_error = exc
+
+                if attempt == 1:
+                    raise
+
+                status = (
+                    exc.response.status_code
+                    if exc.response is not None
+                    else "no response"
+                )
+
+                print(
+                    f"[!] SoyBooru API request failed, retrying... "
+                    f"({status}): {exc}"
+                )
+
+                time.sleep(2)
+
+        raise last_error
 
     def get(self, url, **kwargs):
         return self.request("GET", url, **kwargs)
