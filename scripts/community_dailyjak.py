@@ -43,19 +43,6 @@ def get_used_soybooru_ids(text):
 
     return ids
 
-def extract_soybooru_ids_from_text(text):
-    ids = set()
-
-    pattern = re.compile(
-        r"File:\s*(\d+)\s*-\s*soybooru(?:\.com)?",
-        re.IGNORECASE
-    )
-
-    for match in pattern.finditer(text):
-        ids.add(int(match.group(1)))
-
-    return ids
-
 
 def find_next_available_slot(page_text):
     code = mwparserfromhell.parse(page_text)
@@ -271,6 +258,28 @@ def replace_slot_in_archive(page_text, slot, wiki_filename):
         return str(code)
     return None
 
+
+def print_response(label, response):
+    print(f"\n--- {label} ---")
+    print(f"Request: {response.request.method} {response.request.url}")
+    print(f"Status: {response.status_code}")
+    print(f"Content-Type: {response.headers.get('Content-Type')}")
+    print("Headers:")
+    for key, value in response.headers.items():
+        print(f"  {key}: {value}")
+    print("Body:")
+    print(response.text[:2000])
+
+def test_favorite(auth, post_id=255644):
+    comment_url = f"{BOORU_API}/{post_id}/comments"
+    favorite_url = f"{BOORU_API}/{post_id}/favorite"
+
+
+    favorite = auth.post(
+        favorite_url,
+        json={}
+    )
+    print_response("FAVORITE RESPONSE", favorite)
 
 
 def create_community_dailyjak(site, auth):
