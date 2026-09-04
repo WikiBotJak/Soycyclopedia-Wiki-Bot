@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 import pywikibot
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -5,6 +7,7 @@ from apscheduler.triggers.cron import CronTrigger
 from Services.ru_account_service import SoybooruAuth
 from scripts.auto_welcome import check_new_users
 from scripts.community_dailyjak import create_community_dailyjak
+from scripts.dailyjak import run_dailyjak
 from scripts.infoboxUpdater import InfoboxUpdater
 from scripts.tag_last_posts import tag_last_posts
 from scripts.updateNewesetArticles import update_newest_articles
@@ -90,9 +93,45 @@ def update_community_dailyjak():
     scan_snca_pages(site)
 
 
+def update_dailyjak(scheduler, attempt=1, max_attempts=24):
+    site = get_site_if_allowed()
+    if not site:
+        return
+
+    auth = get_ru_auth_if_allowed()
+    if not auth:
+        return
+
+    try:
+        run_dailyjak(site, auth)
+    except Exception as e:
+        print(f"[!] Dailyjak update failed (attempt {attempt}/{max_attempts}): {e}")
+        if attempt < max_attempts:
+            retry_time = datetime.now(timezone.utc) + timedelta(hours=1)
+            scheduler.add_job(
+                update_dailyjak,
+                trigger="date",
+                run_date=retry_time,
+                args=[scheduler, attempt + 1, max_attempts],
+                name=f"Dailyjak Retry #{attempt + 1}",
+                misfire_grace_time=3600,
+            )
+            print(f"[*] Scheduled retry #{attempt + 1} at {retry_time.isoformat()}")
+        else:
+            print(f"[x] Dailyjak update failed after {max_attempts} attempts, giving up until next day")
+
+
 def main():
     scheduler = BlockingScheduler()
 
+    scheduler.add_job(
+        update_dailyjak,
+        trigger=CronTrigger(hour=0, minute=0),
+        args=[scheduler],
+        name="Daily Dailyjak Update",
+        coalesce=True,
+        misfire_grace_time=3600
+    )
     scheduler.add_job(
         update_community_dailyjak,
         trigger=CronTrigger(day_of_week="sun", hour=0, minute=1),

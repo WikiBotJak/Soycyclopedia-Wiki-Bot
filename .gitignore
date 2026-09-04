@@ -2,4 +2,6 @@
 /pywikibot-SoyjakBot.lwp
 /throttle.ctrl
 /logs/
-user-password.cfg
+user-password.cfg__pycache__/
+scripts/__pycache__/
+__pycache__/
