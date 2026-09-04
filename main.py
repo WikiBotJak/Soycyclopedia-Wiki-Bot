@@ -83,11 +83,11 @@ def update_community_dailyjak():
     if not site:
         return
 
-    auth = get_ru_auth_if_allowed()
-    if auth:
-        create_community_dailyjak(site, auth)
-        updater = InfoboxUpdater(site, auth)
-        updater.run()
+    # auth = get_ru_auth_if_allowed()
+    # if auth:
+    #     create_community_dailyjak(site, auth)
+    #     updater = InfoboxUpdater(site, auth)
+    #     updater.run()
 
     check_redirects(site)
     scan_snca_pages(site)
