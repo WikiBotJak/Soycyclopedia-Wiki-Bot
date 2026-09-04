@@ -3,3 +3,5 @@
 /throttle.ctrl
 /logs/
 user-password.cfg
+scripts/__pycache__/
+__pycache__/
