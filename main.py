@@ -16,6 +16,7 @@ from scripts.archiveis_archiver import MementoArchiver
 from scripts.fix_double_redirects import check_redirects
 from scripts.edit_warring_detector import check_edit_wars
 from scripts.redirect_new_snca_pages import scan_snca_pages
+from scripts.sandbox_reset import reset_sandbox
 
 def get_site():
     site = pywikibot.Site()
@@ -67,6 +68,15 @@ def update_na():
 
     update_newest_articles(site)
     check_new_users(site)
+
+
+def daily_sandbox_reset():
+    site = get_site_if_allowed()
+
+    if not site:
+        return
+
+    reset_sandbox(site)
 
 
 def update_blocks_and_archives():
@@ -154,6 +164,14 @@ def main():
         name="Daily Main Page Article Update",
         coalesce=True,
         misfire_grace_time=3600 
+    )
+
+    scheduler.add_job(
+        daily_sandbox_reset,
+        trigger=CronTrigger(hour=0, minute=0),
+        name="Daily Sandbox Reset",
+        coalesce=True,
+        misfire_grace_time=3600
     )
 
     try:
