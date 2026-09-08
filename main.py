@@ -160,7 +160,7 @@ def main():
 
     scheduler.add_job(
         update_na,
-        trigger=CronTrigger(hour=0, minute=0),
+        trigger=CronTrigger(hour=0, minute=5),
         name="Daily Main Page Article Update",
         coalesce=True,
         misfire_grace_time=3600 
