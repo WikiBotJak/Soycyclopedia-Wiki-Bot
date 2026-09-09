@@ -136,7 +136,7 @@ def main():
 
     scheduler.add_job(
         update_dailyjak,
-        trigger=CronTrigger(hour=0, minute=0),
+        trigger=CronTrigger(hour=0, minute=5),
         args=[scheduler],
         name="Daily Dailyjak Update",
         coalesce=True,
@@ -160,7 +160,7 @@ def main():
 
     scheduler.add_job(
         update_na,
-        trigger=CronTrigger(hour=0, minute=5),
+        trigger=CronTrigger(hour=0, minute=0),
         name="Daily Main Page Article Update",
         coalesce=True,
         misfire_grace_time=3600 
