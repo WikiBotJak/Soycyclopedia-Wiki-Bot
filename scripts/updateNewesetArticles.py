@@ -2,9 +2,11 @@ import pywikibot
 
 excluded_prefix = "Featured Gem:Main Page/Featured Gem"
 page_title = "Main Page/NA"
-disambig_category = "Category:Disambiguation pages"
 max_new_pages = 5
-
+excluded_categories = [
+    "Category:Disambiguation pages",
+    "Category:Gimmick templates"
+]
 
 def update_newest_articles(site):
     new_pages = []
@@ -26,8 +28,9 @@ def update_newest_articles(site):
             continue
 
         categories = [cat.title() for cat in page_obj.categories()]
-        if disambig_category in categories:
-            print(f"[!] Skipping disambiguation page: {title}")
+        
+        if any(excluded_cat in categories for excluded_cat in excluded_categories):
+            print(f"[!] Skipping page with excluded category: {title}")
             continue
 
         new_pages.append(f"[[{title}]]")
