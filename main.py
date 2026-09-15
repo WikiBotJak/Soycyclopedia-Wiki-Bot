@@ -81,8 +81,8 @@ def daily_sandbox_reset():
 
 def update_blocks_and_archives():
     site = get_site_if_allowed()
-    if site:
-        update_block_flags(site)
+    # if site:
+    #     update_block_flags(site)
 
     auth = get_ru_auth_if_allowed()
     if auth:
