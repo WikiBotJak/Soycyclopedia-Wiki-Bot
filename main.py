@@ -11,7 +11,7 @@ from scripts.dailyjak import run_dailyjak
 from scripts.infoboxUpdater import InfoboxUpdater
 from scripts.tag_last_posts import tag_last_posts
 from scripts.updateNewesetArticles import update_newest_articles
-from scripts.block_flag_updater import update_block_flags
+#from scripts.block_flag_updater import update_block_flags
 from scripts.archiveis_archiver import MementoArchiver
 from scripts.fix_double_redirects import check_redirects
 from scripts.edit_warring_detector import check_edit_wars
