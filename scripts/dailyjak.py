@@ -77,7 +77,7 @@ def download_dailyjak_image(auth, post_id):
     return tmp.name, ext
 
 
-def upload_to_wiki(site, local_path, wiki_filename):
+def upload_to_wiki(site, local_path, wiki_filename, post_id):
     """Upload the dailyjak image to the wiki."""
     file_page = pywikibot.FilePage(site, f"File:{wiki_filename}")
 
@@ -86,11 +86,12 @@ def upload_to_wiki(site, local_path, wiki_filename):
         return file_page
 
     comment = "Uploading Dailyjak"
+    text = f"==Licensing==\n{{{{Booru|1={post_id}}}}}"
 
     file_page.upload(
         source=local_path,
         comment=comment,
-        text="Dailyjak",
+        text=text,
         ignore_warnings=True,
     )
 
@@ -133,7 +134,7 @@ def run_dailyjak(site, auth):
 
     try:
         wiki_filename = f"Dailyjak {today_dd_mm_yyyy}{ext}"
-        upload_to_wiki(site, local_path, wiki_filename)
+        upload_to_wiki(site, local_path, wiki_filename, post_id)
 
         update_user_page(site, today_page_title, wiki_filename, post_id)
         update_user_page(site, tomorrow_page_title, wiki_filename, post_id)
