@@ -100,7 +100,7 @@ def update_community_dailyjak():
         updater.run()
 
     check_redirects(site)
-    scan_snca_pages(site)
+    #scan_snca_pages(site)
 
 
 def update_dailyjak(scheduler, attempt=1, max_attempts=24):
