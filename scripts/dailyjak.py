@@ -2,6 +2,7 @@ import os
 import re
 import tempfile
 from datetime import datetime, timedelta, timezone
+from unicodedata import category
 
 import pywikibot
 
@@ -55,6 +56,28 @@ def get_extension_from_response(res):
     """Determine file extension from response Content-Type header."""
     content_type = res.headers.get("Content-Type", "").split(";")[0].strip().lower()
     return MIME_TO_EXT.get(content_type, ".png")
+
+def add_dailyjak_tag(auth, post_id):
+    res = auth.get(f"{BOORU_POSTS_URL}/{post_id}")
+
+    tags = []
+    post = res.json()
+    for tag in post.get("tags", []):
+        category = tag.get("category")
+        name = tag["name"]
+
+        tags.append(f"{category}:{name}" if category else name)
+
+    if "meta:dailyjak" in tags:
+        print(f"[-] Post #{post_id} already has meta:dailyjak")
+        return
+
+    tags.append("meta:dailyjak")
+    auth.put(
+        f"{BOORU_POSTS_URL}/{post_id}/tags",
+        json={"tags": tags}
+    )
+    print(f"[+] Added meta:dailyjak to post #{post_id}")
 
 
 def download_dailyjak_image(auth, post_id):
@@ -138,6 +161,8 @@ def run_dailyjak(site, auth):
 
         update_user_page(site, today_page_title, wiki_filename, post_id)
         update_user_page(site, tomorrow_page_title, wiki_filename, post_id)
+
+        add_dailyjak_tag(auth, post_id)
 
         print(f"[✓] Dailyjak update complete for {today.isoformat()}")
     finally:
