@@ -125,7 +125,7 @@ def build_static_page(entry,revision_id, article_text):
         f"Source: [[{entry['article']}]]\n"
         f"Revision: {revision_id}\n"
         f"Featured date: {entry['date'].isoformat()}\n"
-        "-->\n\n"
+        "-->"
     )
 
     return header + str(code) + "\n"
