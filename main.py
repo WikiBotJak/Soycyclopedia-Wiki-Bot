@@ -8,6 +8,7 @@ from Services.ru_account_service import SoybooruAuth
 from scripts.auto_welcome import check_new_users
 from scripts.community_dailyjak import create_community_dailyjak
 from scripts.dailyjak import run_dailyjak
+from scripts.featured_gem import update_featured_gem
 from scripts.infoboxUpdater import InfoboxUpdater
 from scripts.tag_last_posts import tag_last_posts
 from scripts.updateNewesetArticles import update_newest_articles
@@ -35,17 +36,14 @@ def is_wiki_blocked(site):
 
 
 def is_ru_banned(auth):
-    res = auth.get(f"https://soybooru.com/api/User/Dailyjak")
-    res.raise_for_status()
+    res = auth.get(f"https://soybooru.com/api/User/{auth.username}")
 
     data = res.json()
     return bool(data.get("activeBans") or data.get("activeBanZones"))
 
-def get_ru_auth_if_allowed():
-    auth = SoybooruAuth()
-
+def get_ru_auth_if_allowed(auth):
     if is_ru_banned(auth):
-        print("[x] RU bot is banned. Skipping SoyBooru tasks.")
+        print("[x] SoyBooru bot is banned. Skipping SoyBooru tasks.")
         return None
 
     return auth
@@ -66,6 +64,7 @@ def update_na():
     if not site:
         return
 
+    update_featured_gem(site)
     update_newest_articles(site)
     check_new_users(site)
 
@@ -79,37 +78,35 @@ def daily_sandbox_reset():
     reset_sandbox(site)
 
 
-def update_blocks_and_archives():
+def update_blocks_and_archives(auth):
     site = get_site_if_allowed()
+
     # if site:
     #     update_block_flags(site)
 
-    auth = get_ru_auth_if_allowed()
-    if auth:
+    if get_ru_auth_if_allowed(auth):
         tag_last_posts(auth)
 
-def update_community_dailyjak():
+def update_community_dailyjak(auth):
     site = get_site_if_allowed()
     if not site:
         return
 
-    auth = get_ru_auth_if_allowed()
-    if auth:
-    #     create_community_dailyjak(site, auth)
+    if get_ru_auth_if_allowed(auth):
+        # create_community_dailyjak(site, auth)
         updater = InfoboxUpdater(site, auth)
         updater.run()
 
     check_redirects(site)
-    scan_snca_pages(site)
+    #scan_snca_pages(site)
 
 
-def update_dailyjak(scheduler, attempt=1, max_attempts=24):
+def update_dailyjak(scheduler, auth, attempt=1, max_attempts=24):
     site = get_site_if_allowed()
     if not site:
         return
 
-    auth = get_ru_auth_if_allowed()
-    if not auth:
+    if not get_ru_auth_if_allowed(auth):
         return
 
     try:
@@ -122,7 +119,7 @@ def update_dailyjak(scheduler, attempt=1, max_attempts=24):
                 update_dailyjak,
                 trigger="date",
                 run_date=retry_time,
-                args=[scheduler, attempt + 1, max_attempts],
+                args=[scheduler, auth, attempt + 1, max_attempts],
                 name=f"Dailyjak Retry #{attempt + 1}",
                 misfire_grace_time=3600,
             )
@@ -133,11 +130,12 @@ def update_dailyjak(scheduler, attempt=1, max_attempts=24):
 
 def main():
     scheduler = BlockingScheduler()
+    auth = SoybooruAuth()
 
     scheduler.add_job(
         update_dailyjak,
         trigger=CronTrigger(hour=0, minute=5),
-        args=[scheduler],
+        args=[scheduler, auth],
         name="Daily Dailyjak Update",
         coalesce=True,
         misfire_grace_time=3600
@@ -145,6 +143,7 @@ def main():
     scheduler.add_job(
         update_community_dailyjak,
         trigger=CronTrigger(day_of_week="sun", hour=0, minute=1),
+        args=[auth],
         name="Weekly Community Dailyjak",
         coalesce=True,
         misfire_grace_time=3600
@@ -153,6 +152,7 @@ def main():
     scheduler.add_job(
         update_blocks_and_archives,
         trigger=CronTrigger(hour="*/2"),
+        args=[auth],
         name="Block Flag And Archiver Sync",
         coalesce=True,
         misfire_grace_time=3600
