@@ -17,6 +17,17 @@ OPTION_MAP = {
     "cross": "10",
     "showsize": "showsize",
 }
+EXCLUDED_FEATURED_TEMPLATES = {
+    "tw",
+    "gemerald",
+    "gem",
+    "topaz",
+    "ruby",
+    "rust",
+    "coal",
+    "dust",
+    "fossil"
+}
 
 def get_param(template, name, default=None):
     if not template.has(name):
@@ -107,6 +118,21 @@ def get_featured_entry(site):
         key=lambda entry: entry["date"]
     )
 
+def clean_featured_content(text):
+    code = mwparserfromhell.parse(text)
+    for template in list(code.filter_templates(recursive=True)):
+        name = str(template.name).strip().replace("_", " ").lower()
+
+        if name in EXCLUDED_FEATURED_TEMPLATES:
+            code.remove(template, recursive=True)
+
+    for link in list(code.filter_wikilinks(recursive=True)):
+        title = str(link.title).strip().replace("_", " ")
+
+        if title.lower().startswith("category:"):
+            code.remove(link, recursive=True)
+
+    return str(code).strip()
 
 def build_static_page(entry,revision_id, article_text):
     code = mwparserfromhell.parse("{{Articlebox/Featured}}")
@@ -130,6 +156,38 @@ def build_static_page(entry,revision_id, article_text):
 
     return header + str(code) + "\n"
 
+def mark_article_featured(page):
+    code = mwparserfromhell.parse(page.get())
+
+    # Don't add the Featured Gem icon twice.
+    for template in code.filter_templates(recursive=True):
+        name = str(template.name).strip().replace("_", " ").lower()
+
+        if name != "top icon":
+            continue
+
+        icon_name = get_param(template, "name")
+
+        if icon_name == "featured-gem":
+            return
+
+    icon = (
+        "{{Top icon"
+        "|image=Featured_Article_Star.svg"
+        "|link=Category:Articles that have been featured"
+        "|text=This article has previously been featured as a Featured Gem."
+        "|name=featured-gem"
+        "}}\n"
+    )
+
+    code.insert(0, icon)
+
+    page.text = str(code)
+    page.save(
+        summary="Bot: mark article as previously featured",
+        minor=True
+    )
+
 
 def publish_featured_gem(site, entry):
     article_name = entry["article"]
@@ -142,7 +200,7 @@ def publish_featured_gem(site, entry):
         )
 
     # Get the article source as it exists right now.
-    article_text = source_page.get()
+    article_text = clean_featured_content(source_page.get())
     revision_id = source_page.latest_revision_id
 
     print(
@@ -169,10 +227,13 @@ def publish_featured_gem(site, entry):
         minor=False
     )
 
+    mark_article_featured(source_page)
+
     print(
         f"[+] Published Featured Gem: "
         f"{article_name} @ revision {revision_id}"
     )
+
 
 def update_featured_gem(site):
     print("[*] Checking Featured Gem schedule...")
