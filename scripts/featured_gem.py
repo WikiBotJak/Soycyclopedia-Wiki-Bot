@@ -18,7 +18,6 @@ OPTION_MAP = {
     "showsize": "showsize",
 }
 EXCLUDED_FEATURED_TEMPLATES = {
-    "tw",
     "gemerald",
     "gem",
     "topaz",
