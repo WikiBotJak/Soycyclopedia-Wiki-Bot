@@ -18,15 +18,7 @@ OPTION_MAP = {
     "showsize": "showsize",
 }
 EXCLUDED_FEATURED_TEMPLATES = {
-    "tw",
-    "gemerald",
-    "gem",
-    "topaz",
-    "ruby",
-    "rust",
-    "coal",
-    "dust",
-    "fossil"
+    "tw"
 }
 
 def get_param(template, name, default=None):
