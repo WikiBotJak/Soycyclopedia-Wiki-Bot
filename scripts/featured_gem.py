@@ -163,7 +163,7 @@ def mark_article_featured(page):
     for template in code.filter_templates(recursive=True):
         name = str(template.name).strip().replace("_", " ").lower()
 
-        if name != "top icon":
+        if name != "PreviouslyFeatured":
             continue
 
         icon_name = get_param(template, "name")
@@ -172,12 +172,7 @@ def mark_article_featured(page):
             return
 
     icon = (
-        "{{Top icon"
-        "|image=Featured_Article_Star.svg"
-        "|link=Category:Articles that have been featured"
-        "|text=This article has previously been featured as a Featured Gem."
-        "|name=featured-gem"
-        "}}\n"
+        "{{PreviouslyFeatured}}\n"
     )
 
     code.insert(0, icon)
