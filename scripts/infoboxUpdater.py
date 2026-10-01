@@ -5,8 +5,6 @@ from datetime import datetime
 import re
 import os
 
-from pip._internal.network import auth
-
 
 class InfoboxUpdater:
     def  __init__(self, site, auth):
@@ -39,7 +37,7 @@ class InfoboxUpdater:
         changed = False
 
         for template in wikicode.filter_templates(recursive=True):
-            if template.name.strip().lower() == "infobox soyjak":
+            if template.name.strip().lower() == "infobox soyjak" or template.name.strip().lower() == "infobox trend":
                 if not template.has("booru_posts"):
                     continue
 
