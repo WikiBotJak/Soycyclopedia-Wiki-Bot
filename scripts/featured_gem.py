@@ -126,7 +126,51 @@ def clean_featured_content(text):
 
     return str(code).strip()
 
+def escape_table_pipes(text):
+    """
+    Protect table pipes from being interpreted as parameters of the
+    surrounding {{Articlebox/Featured}} template.
+
+    The opening {| is intentionally left alone.
+    """
+    lines = text.splitlines(keepends=True)
+    output = []
+    table_depth = 0
+
+    for line in lines:
+        stripped = line.lstrip()
+        indent = line[:len(line) - len(stripped)]
+
+        # Opening {| MUST remain literal.
+        if stripped.startswith("{|"):
+            table_depth += 1
+            output.append(
+                indent + "{" + "{{!}}" + stripped[2:]
+            )
+            continue
+
+        if table_depth:
+            # |}
+            if stripped.startswith("|}"):
+                output.append(
+                    indent + "{{!}}}" + stripped[2:]
+                )
+                table_depth -= 1
+                continue
+
+            # |-, |+, and ordinary table cells
+            if stripped.startswith("|"):
+                output.append(
+                    indent + "{{!}}" + stripped[1:]
+                )
+                continue
+
+        output.append(line)
+
+    return "".join(output)
+
 def build_static_page(entry,revision_id, article_text):
+    article_text = escape_table_pipes(article_text)
     code = mwparserfromhell.parse("{{Articlebox/Featured}}")
     template = code.filter_templates(recursive=False)[0]
 
