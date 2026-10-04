@@ -65,6 +65,7 @@ def update_na():
         return
 
     update_newest_articles(site)
+    update_featured_gem(site)
     #check_new_users(site)
 
 
@@ -130,10 +131,6 @@ def update_dailyjak(scheduler, auth, attempt=1, max_attempts=24):
 def main():
     scheduler = BlockingScheduler()
     auth = SoybooruAuth()
-
-
-    site = get_site_if_allowed()
-    update_featured_gem(site)
 
     scheduler.add_job(
         update_dailyjak,
