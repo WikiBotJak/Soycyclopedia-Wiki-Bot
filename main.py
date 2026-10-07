@@ -17,6 +17,7 @@ from scripts.archiveis_archiver import MementoArchiver
 from scripts.fix_double_redirects import check_redirects
 from scripts.edit_warring_detector import check_edit_wars
 from scripts.redirect_new_snca_pages import scan_snca_pages
+from scripts.oprhaned import update_orphaned_pages
 from scripts.sandbox_reset import reset_sandbox
 
 def get_site():
@@ -65,7 +66,6 @@ def update_na():
         return
 
     update_newest_articles(site)
-    update_featured_gem(site)
     #check_new_users(site)
 
 
@@ -98,6 +98,7 @@ def update_community_dailyjak(auth):
         updater.run()
 
     check_redirects(site)
+    update_orphaned_pages(site)
     #scan_snca_pages(site)
 
 
