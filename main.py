@@ -66,6 +66,7 @@ def update_na():
         return
 
     update_newest_articles(site)
+    update_featured_gem(site)
     #check_new_users(site)
 
 
