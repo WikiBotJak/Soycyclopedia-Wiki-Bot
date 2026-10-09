@@ -18,6 +18,15 @@ OPTION_MAP = {
     "showsize": "showsize",
 }
 EXCLUDED_FEATURED_TEMPLATES = {
+    "gemerald",
+    "gem",
+    "topaz",
+    "ruby",
+    "rust",
+    "coal",
+    "dust",
+    "fossil",
+    "previouslyfeatured"
     "tw"
 }
 
