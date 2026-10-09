@@ -26,7 +26,7 @@ EXCLUDED_FEATURED_TEMPLATES = {
     "coal",
     "dust",
     "fossil",
-    "previouslyfeatured"
+    "previouslyfeatured",
     "tw"
 }
 
