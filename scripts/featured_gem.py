@@ -27,7 +27,8 @@ EXCLUDED_FEATURED_TEMPLATES = {
     "dust",
     "fossil",
     "previouslyfeatured",
-    "tw"
+    "tw",
+    "distinguish"
 }
 
 def get_param(template, name, default=None):
