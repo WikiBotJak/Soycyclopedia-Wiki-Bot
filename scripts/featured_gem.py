@@ -30,7 +30,7 @@ EXCLUDED_FEATURED_TEMPLATES = {
     "tw",
     "distinguish",
     "corner",
-    "fakearticleend"
+    "fakearticleend",
     "displaytitle"
 }
 
