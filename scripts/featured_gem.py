@@ -31,7 +31,7 @@ EXCLUDED_FEATURED_TEMPLATES = {
     "distinguish",
     "corner",
     "fakearticleend",
-    "displaytitle"
+    "displaytitle:"
 }
 
 def get_param(template, name, default=None):
