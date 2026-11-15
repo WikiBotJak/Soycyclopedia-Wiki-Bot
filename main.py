@@ -7,6 +7,7 @@ from apscheduler.triggers.cron import CronTrigger
 from Services.ru_account_service import SoybooruAuth
 from scripts.auto_welcome import check_new_users
 from scripts.community_dailyjak import create_community_dailyjak
+from scripts.community_missions import run_community_missions
 from scripts.dailyjak import run_dailyjak
 from scripts.featured_gem import update_featured_gem
 from scripts.infoboxUpdater import InfoboxUpdater
@@ -88,6 +89,12 @@ def update_blocks_and_archives(auth):
     if get_ru_auth_if_allowed(auth):
         tag_last_posts(auth)
 
+def update_community_missions():
+    site = get_site_if_allowed()
+    if site:
+        run_community_missions(site)
+
+
 def update_community_dailyjak(auth):
     site = get_site_if_allowed()
     if not site:
@@ -142,6 +149,7 @@ def main():
         coalesce=True,
         misfire_grace_time=3600
     )
+
     scheduler.add_job(
         update_community_dailyjak,
         trigger=CronTrigger(day_of_week="sun", hour=0, minute=1),
@@ -156,6 +164,14 @@ def main():
         trigger=CronTrigger(hour="*/2"),
         args=[auth],
         name="Block Flag And Archiver Sync",
+        coalesce=True,
+        misfire_grace_time=3600
+    )
+
+    scheduler.add_job(
+        update_community_missions,
+        trigger=CronTrigger(hour="*/12"),
+        name="Community Missions Update",
         coalesce=True,
         misfire_grace_time=3600
     )
