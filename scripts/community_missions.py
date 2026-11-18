@@ -25,7 +25,7 @@ CURRENT = f"{PROJECT}/Current"
 UPCOMING = f"{PROJECT}/Upcoming"
 ARCHIVE = f"{PROJECT}/Archive"
 DATABASE_PATH = Path(__file__).resolve().parents[1] / ".Soycyclopedia-Bot-DB.sqlite3"
-VOTING_WINDOW = timedelta(hours=1)
+VOTING_WINDOW = timedelta(hours=48)
 SUMMARY = "Update community mission display from the schedule"
 NOMINATION_PREFIX = "Mission nomination:"
 NOMINATION_TEMPLATE = "Community mission nomination"
@@ -171,10 +171,43 @@ def read_nominations(source):
             objective, scope = fields.get("objective", ""), fields.get("scope", "")
             if not objective or not scope or len(objective.splitlines()) != 1 or len(scope.splitlines()) != 1:
                 raise ValueError("objective and scope must each be a nonempty single line")
-            result[poll_id.lower()] = Mission(poll_id, heading, title, objective, scope, int(days))
+            days = int(days)
+            if days < 1:
+                raise ValueError("duration must be at least one day")
+            result[poll_id.lower()] = Mission(poll_id, heading, title, objective, scope, days)
         except ValueError as error:
             print(f"Skipped {heading}: {error}", file=sys.stderr)
     return result
+
+
+
+def close_due_polls(site, discussion, revision, missions, known_poll_ids, now):
+    candidates = {
+        key: mission for key, mission in read_nominations(discussion).items()
+        if key not in known_poll_ids
+    }
+    if not candidates:
+        return
+
+    dates = nomination_dates(site, revision, candidates)
+    due = []
+    for key, mission in candidates.items():
+        mission.nominated_at = utc(dates[key])
+        if now >= mission.nominated_at + VOTING_WINDOW:
+            due.append(mission)
+    if not due:
+        return
+
+    counts = observed_votes(site, revision)
+    for mission in due:
+        yays = counts.get((mission.poll_id, "1"), [])
+        nays = counts.get((mission.poll_id, "2"), [])
+        if len(yays) != 1 or len(nays) != 1:
+            print(f"Deferred {mission.section}: Yay/Nay counts unavailable.", file=sys.stderr)
+            continue
+        mission.closed_at = now
+        mission.yays, mission.nays = yays[0], nays[0]
+        missions[mission.poll_id.lower()] = mission
 
 
 def assign_dates(missions, now):
@@ -564,6 +597,8 @@ def update_discussion(source, missions):
             tally = f"Closed tally on {stamp}: {yays} Yay, {nays} Nay."
             if yays + nays == 0:
                 margin = "No votes were cast."
+            elif yays == nays:
+                margin = "Yay and Nay tied (0 percentage points apart)."
             else:
                 leader = "Yay" if yays > nays else "Nay"
                 gap = f"{100 * abs(yays - nays) / (yays + nays):.2f}".rstrip("0").rstrip(".")
@@ -648,6 +683,9 @@ def plan_changes(site, missions, now, archived_poll_ids=()):
     display_pages = {title: read_page(site, title) for title in (UPCOMING, CURRENT)}
     known_poll_ids = set(missions).union(archived_poll_ids)
     missions.update(read_wiki_missions(discussion, known_poll_ids))
+    close_due_polls(
+        site, discussion, revision, missions, known_poll_ids.union(missions), now
+    )
 
     scheduled = assign_dates(missions, now)
     edits = update_article_markers(site, scheduled, now)
