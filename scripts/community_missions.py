@@ -602,8 +602,7 @@ def update_discussion(source, missions):
             else:
                 leader = "Yay" if yays > nays else "Nay"
                 gap = f"{100 * abs(yays - nays) / (yays + nays):.2f}".rstrip("0").rstrip(".")
-                unit = "percentage point" if gap == "1" else "percentage points"
-                margin = f"{leader} led by {gap} {unit}."
+                margin = f"{leader} led by {gap}%."
             reply = f": '''{decision}.''' {tally} {margin} ~~~~"
             text = text.rstrip("\n") + f"\n\n{reply}\n\n"
         sections.append(text)
